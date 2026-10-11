@@ -1,0 +1,47 @@
+name: Licensing inquiry
+description: Ask about a commercial licence for the BSL tier, or about how the licence map applies to your use.
+title: "Licensing: "
+labels: ["licensing"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Most uses need no permission at all. Read [LICENSING.md](https://github.com/RexStarBSV/Inkan/blob/master/LICENSING.md) first:
+        verifying Inkan codes and seals, and generating your own, is Apache-2.0 in every language the
+        standard ships; the specification is CC BY 4.0 and the conformance vectors are CC0; and the BSL tier's
+        Additional Use Grant already covers sealing, fingerprinting, signing and anchoring your own
+        releases and canaries.
+
+        **This issue is public.** Put nothing confidential in it. The Licensor responds pseudonymously,
+        in this issue.
+  - type: textarea
+    id: use
+    attributes:
+      label: What you want to do
+      description: The product or service, and which part of this repository it would use.
+    validations:
+      required: true
+  - type: dropdown
+    id: tier
+    attributes:
+      label: Which part of the licence map you think this touches
+      options:
+        - The BSL tier (anchoring, minting and tagged-export workflows, tools, application surfaces)
+        - The verification path (Apache-2.0); I am not sure it covers my use
+        - The specification or the conformance vectors
+        - The Inkan mark
+        - Not sure
+    validations:
+      required: true
+  - type: textarea
+    id: why
+    attributes:
+      label: Why the existing grants do not cover it
+      description: Optional. Saves a round trip if you have already checked the Additional Use Grant in LICENSE.
+  - type: checkboxes
+    id: read
+    attributes:
+      label: Before you send
+      options:
+        - label: I have read LICENSING.md, and I understand this issue is public.
+          required: true

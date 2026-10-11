@@ -1,0 +1,117 @@
+Inkan verification path
+Copyright 2026 RexStarBSV
+
+Licensed under the Apache License, Version 2.0 (see LICENSE-VERIFY).
+
+Covered files (the verification path and its minimal imports):
+
+  Python reference:
+    python/inkan_standard/__init__.py
+    python/inkan_standard/verify.py
+    python/inkan_standard/seed.py
+    python/inkan_standard/seal.py
+    python/inkan_standard/seal_tables.py
+    python/inkan_standard/fingerprint.py
+    python/inkan_standard/canary.py
+    python/inkan_standard/_secp256k1.py
+
+  JavaScript port (the same verification path; each file is a mirror of its
+  Python twin and is proven byte-exact against it by the shared vectors, plus
+  the type declarations that describe it):
+    js/src/index.js
+    js/src/index.d.ts
+    js/src/sha256.js
+    js/src/seed.js
+    js/src/seal.js
+    js/src/seal_tables.js
+    js/src/fingerprint.js
+    js/src/canary.js
+    js/src/secp256k1.js
+
+  Built verification surface (the self-contained reference verifier page; it
+  embeds the JavaScript port above and is intended for redistribution and
+  on-chain inscription). Two parts of each page are NOT covered and are marked
+  in place as SPDX snippets: the embedded font (LICENSE-FONTS) and the
+  embedded Inkan mark (LICENSE-MARK).
+    web/inkan-verify.html
+    web/inkan-verify.artifact.html
+
+  Kotlin port (same, for the JVM):
+    kotlin/src/main/kotlin/inkan/Inkan.kt
+    kotlin/src/main/kotlin/inkan/Encoding.kt
+    kotlin/src/main/kotlin/inkan/SealV3.kt
+    kotlin/src/main/kotlin/inkan/SealTables.kt
+
+python/inkan_standard/anchor.py is not part of the verification path and remains under
+LICENSE (BSL 1.1). So do the test suites, the release and packaging tooling
+(including the builder that GENERATES the verifier page, as distinct from the
+page itself); see LICENSING.md.
+
+In the Inkan source repository, files not listed above are governed by
+LICENSE (BSL 1.1) unless designated in LICENSE-SPEC, LICENSE-VECTORS,
+LICENSE-FONTS, LICENSE-GRADLE or LICENSE-MARK. The licence and notice
+documents themselves (LICENSE, the LICENSE-* files and this NOTICE) are not
+part of that map: the licence texts they reproduce stay under their own
+authors' terms. See LICENSING.md. Downstream distributors of the verification
+path must give recipients a copy of the Apache License (LICENSE-VERIFY) and
+reproduce this NOTICE (Apache-2.0 Sections 4(a) and 4(d)); they need not carry
+LICENSE or the other licence documents.
+
+--------------------------------------------------------------------------
+Third-party font embedded in the distributed web verifier
+--------------------------------------------------------------------------
+
+web/inkan-verify.html and web/inkan-verify.artifact.html embed Inkan Sans as
+base64 TrueType, so the page renders identically offline, from a static host,
+and from an on-chain inscription.
+
+    Inkan Sans, a Modified Version of IBM Plex Sans
+    Copyright 2017 IBM Corp. with Reserved Font Name "Plex"
+    (the font files' own notice: "Copyright 2018 IBM Corp. All rights reserved.")
+    Licensed under the SIL Open Font License, Version 1.1
+    http://scripts.sil.org/OFL
+
+OFL condition 2 requires every redistributed copy to contain IBM's notice and
+the licence. The full OFL text ships at LICENSE-FONTS, and each page also
+reproduces it, with IBM's notice, inside its OFL-1.1 SPDX snippet beside the
+font data, so a saved, re-hosted or inscribed copy of the page carries it. It
+governs the embedded font data (that snippet in each page) and the subset font
+files it is built from, wherever those appear. They are IBM's work, are NOT
+part of the Licensed Work under LICENSE, are not BSL 1.1, and are not covered
+by the page's Apache-2.0 grant.
+
+The embedded copies are a Modified Version: subsets (Basic Latin, Latin-1
+Supplement, and the handful of symbols the interface uses). IBM's licence
+reserves the font name "Plex", and OFL section 3 forbids a Modified Version to
+use a Reserved Font Name, so the subsets are renamed "Inkan Sans" in their
+name tables and in the page's CSS. Apart from the subsetting itself, which
+cut the glyph, character-map, metrics and layout tables down to the characters
+kept, nothing else in the fonts was changed besides the vendor ID: the rename
+leaves every one of those tables exactly as the subsetting produced it. IBM's
+copyright notice is kept in each font, and the licence and its URL are restored
+to the font's own name table. Inkan Sans is not endorsed by IBM.
+The font is embedded as part of a larger work and is not sold on its own.
+Characters outside the subset fall back to the host's system font.
+
+--------------------------------------------------------------------------
+The Inkan mark embedded in the distributed web verifier
+--------------------------------------------------------------------------
+
+Each page also embeds the Inkan mark as an inline vector (the
+LicenseRef-Inkan-Mark SPDX snippet). The mark is (c) 2026 RexStarBSV, all
+rights reserved. It is not covered by the page's Apache-2.0 grant or by any
+other licence in this repository, and it never converts to MIT; see
+LICENSE-MARK for the one permission given (passing on an unmodified page).
+
+--------------------------------------------------------------------------
+Third-party build tooling
+--------------------------------------------------------------------------
+
+The Gradle wrapper (kotlin/gradlew, kotlin/gradlew.bat,
+kotlin/gradle/wrapper/gradle-wrapper.jar and
+kotlin/gradle/wrapper/gradle-wrapper.properties) is Gradle's own work,
+licensed under the Apache License, Version 2.0. Its scripts carry their
+authors' notices: "Copyright © 2015-2021 the original authors" (gradlew)
+and "Copyright 2015 the original author or authors" (gradlew.bat). It is not
+the Licensor's work and is not part of the Licensed Work under LICENSE; see
+LICENSE-GRADLE.

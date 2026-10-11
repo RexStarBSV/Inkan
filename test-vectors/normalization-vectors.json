@@ -1,0 +1,41 @@
+{
+  "comment": "Normalization vectors (additive, 2026-07-31). PIN THE FROZEN v3 BEHAVIOUR: the anchor (SPEC 1) NFC-normalizes the kind, the seal derivation (SPEC 4.2) hashes the kind AS PROVIDED with no NFC step. Same anchor, different seals for NFD input is the specified outcome; an implementation that inserts NFC into derivation FAILS these.",
+  "anchor_layer": {
+    "data_utf8": "Hello",
+    "kind_nfc": "caf\u00e9@t2",
+    "kind_nfd_codepoints": [
+      "0x63",
+      "0x61",
+      "0x66",
+      "0x65",
+      "0x301",
+      "0x40",
+      "0x74",
+      "0x32"
+    ],
+    "anchors_equal": true,
+    "code": "ik17bf2f743edead9a21d7c8bc63f24e3d8fe011d8a97ad8cdf3354ac7ac1128856"
+  },
+  "derivation_layer": [
+    {
+      "kind_form": "NFC",
+      "kind_utf8_hex": "636166c3a9407432",
+      "resolve": [
+        48,
+        3,
+        1
+      ],
+      "rgb_sha256": "18c462459809d07db715e504e569f69f955ac025d7b00bb127227631d39b5484"
+    },
+    {
+      "kind_form": "NFD",
+      "kind_utf8_hex": "63616665cc81407432",
+      "resolve": [
+        48,
+        2,
+        9
+      ],
+      "rgb_sha256": "8d341238a93aca9ce2a17f138ae88ef248984246aa19ef49e215f0969b5f03b1"
+    }
+  ]
+}

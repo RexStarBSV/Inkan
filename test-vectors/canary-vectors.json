@@ -1,0 +1,249 @@
+{
+ "cases": [
+  {
+   "expect": "OK",
+   "name": "tv7",
+   "record_json": "{\"block_hash\":\"00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff\",\"block_height\":870000,\"date\":\"2026-06-30T00:00:00Z\",\"domain\":\"acme\",\"seq\":7,\"statement\":\"No warrant, gag, key compromise or coercion.\",\"v\":1}",
+   "rule": null,
+   "signature_der_hex": "3045022100d336085483c2dea86794ef3404d7dc7beef56368fd380000e4d0d8f3ac3fe50c02200a4fff49ba1173d1b66f8d4a335cb587c221db79280df23fc2b495b081c65e11"
+  },
+  {
+   "expect": "INVALID",
+   "name": "tv7-high-s-twin",
+   "note": "the same signature with S replaced by n - S; mathematically valid, never produced by a low-S signer, and reported INVALID",
+   "record_json": "{\"block_hash\":\"00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff\",\"block_height\":870000,\"date\":\"2026-06-30T00:00:00Z\",\"domain\":\"acme\",\"seq\":7,\"statement\":\"No warrant, gag, key compromise or coercion.\",\"v\":1}",
+   "rule": null,
+   "signature_der_hex": "3046022100d336085483c2dea86794ef3404d7dc7beef56368fd380000e4d0d8f3ac3fe50c022100f5b000b645ee8c2e499072b5cca34a76f88d016d873aadfbfd1dc8dc4e6fe330"
+  },
+  {
+   "expect": "INVALID",
+   "name": "tampered-statement",
+   "record_json": "{\"block_hash\":\"00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff\",\"block_height\":870000,\"date\":\"2026-06-30T00:00:00Z\",\"domain\":\"acme\",\"seq\":7,\"statement\":\"We were compromised.\",\"v\":1}",
+   "rule": null,
+   "signature_der_hex": "3045022100d336085483c2dea86794ef3404d7dc7beef56368fd380000e4d0d8f3ac3fe50c02200a4fff49ba1173d1b66f8d4a335cb587c221db79280df23fc2b495b081c65e11"
+  },
+  {
+   "expect": "OK",
+   "name": "seq-max-safe-integer",
+   "record_json": "{\"block_hash\":\"00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff\",\"block_height\":870000,\"date\":\"2026-06-30T00:00:00Z\",\"domain\":\"acme\",\"seq\":9007199254740991,\"statement\":\"No warrant, gag, key compromise or coercion.\",\"v\":1}",
+   "rule": null,
+   "signature_der_hex": "3045022100adb10887f5f73a22714398f04a1207fd43f93a30462bddf17c2d5c40fff7e29502206b7ecb62d86334efb7c83dc0641672ea3511e3af2df34e1c746da43564cd9b3b"
+  },
+  {
+   "expect": "OK",
+   "name": "escaping",
+   "note": "the canonical bytes escape exactly the seven short forms and other code points below U+0020; U+007F, U+2028, U+2029 and all non-ASCII are written as themselves",
+   "record_json": "{\"block_hash\":\"00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff\",\"block_height\":870000,\"date\":\"2026-06-30T00:00:00Z\",\"domain\":\"acme\",\"seq\":7,\"statement\":\"q\\\" b\\\\ \\b\\f\\n\\r\\t \\u0001\\u001f \u007f \u2028\u2029 caf\u00e9 \ud83d\ude00\",\"v\":1}",
+   "rule": null,
+   "signature_der_hex": "30440220305470aee5cbb407c69ee7b3be8b0a93feafea0dd957d6a7a3f2a107d1c4d7bb0220112444ad74dfaf52485297863b97286ef59e8ebb0fd50f87757266f9e338ae57"
+  },
+  {
+   "expect": "STALE",
+   "name": "leap-day-is-a-real-date",
+   "record_json": "{\"block_hash\":\"00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff\",\"block_height\":870000,\"date\":\"2024-02-29T00:00:00Z\",\"domain\":\"acme\",\"seq\":7,\"statement\":\"No warrant, gag, key compromise or coercion.\",\"v\":1}",
+   "rule": null,
+   "signature_der_hex": "3045022100f0af0aa08c0eacf5bdc360f854ac0670963cbd382a9377f7c0685bfcd820cd1502207fd43969bdf628c5870628e49fea4afb3748b82ed6c8619fbdf447f3d1f15ebe"
+  },
+  {
+   "expect": "UNSUPPORTED",
+   "name": "unsupported-version",
+   "record_json": "{\"block_hash\":\"00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff\",\"block_height\":870000,\"date\":\"2026-06-30T00:00:00Z\",\"domain\":\"acme\",\"seq\":7,\"statement\":\"No warrant, gag, key compromise or coercion.\",\"v\":2}",
+   "rule": null,
+   "signature_der_hex": "304402205a563252a63c1569a496ede0e380dfe0b2e7a7c39f6e4893134cfd9a4e632d1d02201cbb1cf761ecf3e1bba016a3c4f32048cade677dbd61b54da3145c53c058ad41"
+  },
+  {
+   "expect": "UNSUPPORTED",
+   "name": "version-as-string",
+   "record_json": "{\"block_hash\":\"00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff\",\"block_height\":870000,\"date\":\"2026-06-30T00:00:00Z\",\"domain\":\"acme\",\"seq\":7,\"statement\":\"No warrant, gag, key compromise or coercion.\",\"v\":\"1\"}",
+   "rule": null,
+   "signature_der_hex": "304402204ed38b6e28de95c4ee9968c40d0367d0aae392d165dd3bd58113d25599195bf102205dc338e85c06d5de5828da1a98d7e326ae697999d70de1bcf7d7b821f368a66e"
+  },
+  {
+   "expect": "MALFORMED",
+   "name": "extra-field",
+   "record_json": "{\"alg\":\"ecdsa\",\"block_hash\":\"00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff\",\"block_height\":870000,\"date\":\"2026-06-30T00:00:00Z\",\"domain\":\"acme\",\"seq\":7,\"statement\":\"No warrant, gag, key compromise or coercion.\",\"v\":1}",
+   "rule": null,
+   "signature_der_hex": "30440220283ddf2d0742595f082603694d17c6cf83d8a691ab0dae3da67129b91522c3b002207773ec486c2700bf1d584aa1e83bc71458be1cf7b7b666419980dbccbd423a85"
+  },
+  {
+   "expect": "MALFORMED",
+   "name": "public-key-not-hex",
+   "pubkey_hex": "02zz",
+   "record_json": "{\"block_hash\":\"00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff\",\"block_height\":870000,\"date\":\"2026-06-30T00:00:00Z\",\"domain\":\"acme\",\"seq\":7,\"statement\":\"No warrant, gag, key compromise or coercion.\",\"v\":1}",
+   "rule": null,
+   "signature_der_hex": "3045022100d336085483c2dea86794ef3404d7dc7beef56368fd380000e4d0d8f3ac3fe50c02200a4fff49ba1173d1b66f8d4a335cb587c221db79280df23fc2b495b081c65e11"
+  },
+  {
+   "expect": "MALFORMED",
+   "name": "seq-2-pow-53-plus-1",
+   "record_json": "{\"block_hash\":\"00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff\",\"block_height\":870000,\"date\":\"2026-06-30T00:00:00Z\",\"domain\":\"acme\",\"seq\":9007199254740993,\"statement\":\"No warrant, gag, key compromise or coercion.\",\"v\":1}",
+   "rule": "E23",
+   "signature_der_hex": "30440220782f5025c63fecbe78cf6f0a07fef2f925ee0c179518ca86cf0eff6d706b08600220099b1add9bf6cd3ad3f0a1d34e7652548df78f5ec523f1fdd0e79d72a4e4dd55"
+  },
+  {
+   "expect": "MALFORMED",
+   "name": "seq-nanosecond-timestamp",
+   "record_json": "{\"block_hash\":\"00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff\",\"block_height\":870000,\"date\":\"2026-06-30T00:00:00Z\",\"domain\":\"acme\",\"seq\":1760112000123456789,\"statement\":\"No warrant, gag, key compromise or coercion.\",\"v\":1}",
+   "rule": "E23",
+   "signature_der_hex": "30450221008d5050452d114b115cc93d2800173f4dde21eff8444a24ee40f5cfe6a3dcfd7602207a3c8e90502cc63905e32a8ae84286c615dbd7c44abd239c569583f7d4c17ed0"
+  },
+  {
+   "expect": "MALFORMED",
+   "name": "seq-negative",
+   "record_json": "{\"block_hash\":\"00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff\",\"block_height\":870000,\"date\":\"2026-06-30T00:00:00Z\",\"domain\":\"acme\",\"seq\":-1,\"statement\":\"No warrant, gag, key compromise or coercion.\",\"v\":1}",
+   "rule": "E23",
+   "signature_der_hex": "3045022100a89349dd5b85af512df245cc5514d07ab6a48038bdabbb82fdafef7693f60bbc02201a0c4bee166ba633ad16b22fd475bc3d6ce89151e196f97f1ea97f947cbcd4cc"
+  },
+  {
+   "expect": "MALFORMED",
+   "name": "seq-fraction",
+   "record_json": "{\"block_hash\":\"00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff\",\"block_height\":870000,\"date\":\"2026-06-30T00:00:00Z\",\"domain\":\"acme\",\"seq\":7.5,\"statement\":\"No warrant, gag, key compromise or coercion.\",\"v\":1}",
+   "rule": "E23",
+   "signature_der_hex": "3044022019ec1ea0758e45315847d2ac2eb93239fca417dbba1d28fe8aad476a7b3096a20220285a3db4431ee2786c5f06505e173c729284f2b75fbe0b803d1cb9421c73ad9a"
+  },
+  {
+   "expect": "MALFORMED",
+   "name": "block-height-2-pow-53",
+   "record_json": "{\"block_hash\":\"00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff\",\"block_height\":9007199254740992,\"date\":\"2026-06-30T00:00:00Z\",\"domain\":\"acme\",\"seq\":7,\"statement\":\"No warrant, gag, key compromise or coercion.\",\"v\":1}",
+   "rule": "E23",
+   "signature_der_hex": "3044022053ddbed8ef2ba65bbb9d0b63296aa63809ddd24e9b040fcad8e8481784b3ff6002204b9596de84787c24e4779599607c4e99d5ea213b719bc866f37d7520ccc4aeef"
+  },
+  {
+   "expect": "MALFORMED",
+   "name": "date-not-zero-padded",
+   "record_json": "{\"block_hash\":\"00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff\",\"block_height\":870000,\"date\":\"2026-6-30T0:0:0Z\",\"domain\":\"acme\",\"seq\":7,\"statement\":\"No warrant, gag, key compromise or coercion.\",\"v\":1}",
+   "rule": "E23",
+   "signature_der_hex": "3045022100f05fd318f0b61937d017aa73c7ed8b1e03820c40ddae404ffa6b3f89faf8a466022015994297dfd0b73bf6fb46075bf28e375615ac47edc6ac8ec379ead91a0621d6"
+  },
+  {
+   "expect": "MALFORMED",
+   "name": "date-hour-24",
+   "record_json": "{\"block_hash\":\"00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff\",\"block_height\":870000,\"date\":\"2026-06-29T24:00:00Z\",\"domain\":\"acme\",\"seq\":7,\"statement\":\"No warrant, gag, key compromise or coercion.\",\"v\":1}",
+   "rule": "E23",
+   "signature_der_hex": "304502210081c44b908ea9d13c54317a7d19049fd3b8fc0cae35ef2852ffea53ea8373c7670220311b1e0d9bca883c614c36adfdcf7e40cf0a11c40adc21bb98c5aa3ee3352af3"
+  },
+  {
+   "expect": "MALFORMED",
+   "name": "date-second-60",
+   "record_json": "{\"block_hash\":\"00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff\",\"block_height\":870000,\"date\":\"2026-06-30T23:59:60Z\",\"domain\":\"acme\",\"seq\":7,\"statement\":\"No warrant, gag, key compromise or coercion.\",\"v\":1}",
+   "rule": "E23",
+   "signature_der_hex": "3045022100d50d55acc8a2017aa4095e0ac527fcc3cad3bf75965ac5d71e7088938c21403702201ce1a99376dc71518801f04e0a8d6b91611825dc8fbee2e93730a75739e07692"
+  },
+  {
+   "expect": "MALFORMED",
+   "name": "date-february-30",
+   "record_json": "{\"block_hash\":\"00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff\",\"block_height\":870000,\"date\":\"2026-02-30T00:00:00Z\",\"domain\":\"acme\",\"seq\":7,\"statement\":\"No warrant, gag, key compromise or coercion.\",\"v\":1}",
+   "rule": "E23",
+   "signature_der_hex": "30450221008463d8ba810d54b9e57b07f34e30c8227f369a5bd6b1ad8a7a643c7277a375d502201b49051309388ee816a13cabf93d8c4fe73440a68aebe7c8b620dde2065ebcb3"
+  },
+  {
+   "expect": "MALFORMED",
+   "name": "date-fullwidth-digits",
+   "record_json": "{\"block_hash\":\"00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff\",\"block_height\":870000,\"date\":\"\uff12\uff10\uff12\uff16-06-30T00:00:00Z\",\"domain\":\"acme\",\"seq\":7,\"statement\":\"No warrant, gag, key compromise or coercion.\",\"v\":1}",
+   "rule": "E23",
+   "signature_der_hex": "304402202c871549dad7aab1e467a5a73318a82d793b08a004afc36f58cc2b3a59ff88c502204a4d6dc18faf479efcf0c6586a857263732ba98dd0062c5c0f57dd73b33e53cf"
+  },
+  {
+   "expect": "MALFORMED",
+   "name": "date-lowercase-z",
+   "record_json": "{\"block_hash\":\"00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff\",\"block_height\":870000,\"date\":\"2026-06-30T00:00:00z\",\"domain\":\"acme\",\"seq\":7,\"statement\":\"No warrant, gag, key compromise or coercion.\",\"v\":1}",
+   "rule": "E23",
+   "signature_der_hex": "3045022100e1c9d00771f2334506f5158402570481ff99865ed0da00ca25fab51eb49492040220741830e25a6d1e743222bf465ed4465a57a4e102c6e09c331c13420facef11f6"
+  },
+  {
+   "expect": "MALFORMED",
+   "name": "date-space-separator",
+   "record_json": "{\"block_hash\":\"00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff\",\"block_height\":870000,\"date\":\"2026-06-30 00:00:00Z\",\"domain\":\"acme\",\"seq\":7,\"statement\":\"No warrant, gag, key compromise or coercion.\",\"v\":1}",
+   "rule": "E23",
+   "signature_der_hex": "3044022069d46e4eb5160b3dd5ef1d1cf2386129af657ae4ea5ad135e468fad9017c2d8f022043a47b7993fe25733d457b9bc73bc8ccd70cce563b4aead5bfcdde1f5aa3a82b"
+  },
+  {
+   "expect": "MALFORMED",
+   "name": "statement-lone-surrogate",
+   "record_json": "{\"block_hash\":\"00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff\",\"block_height\":870000,\"date\":\"2026-06-30T00:00:00Z\",\"domain\":\"acme\",\"seq\":7,\"statement\":\"ok \\ud800\",\"v\":1}",
+   "rule": "E23",
+   "signature_der_hex": "304402205ab296e04dbe98c5c21d5913642a4ef147d8edad6ebfb26c2d960b1dcba1b078022019c5a832dfefbf398eeab77a7e3d8b6a580b625dd84a59c8e18c83de98f1743c"
+  },
+  {
+   "expect": "MALFORMED",
+   "name": "record-not-canonical",
+   "note": "the wire bytes are not the canonical encoding of the record they parse to",
+   "record_json": "{\"block_hash\":\"00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff\",\"block_height\":870000,\"date\":\"2026-06-30T00:00:00Z\",\"domain\": \"acme\",\"seq\":7,\"statement\":\"No warrant, gag, key compromise or coercion.\",\"v\":1}",
+   "rule": "E23",
+   "signature_der_hex": "3045022100d336085483c2dea86794ef3404d7dc7beef56368fd380000e4d0d8f3ac3fe50c02200a4fff49ba1173d1b66f8d4a335cb587c221db79280df23fc2b495b081c65e11"
+  },
+  {
+   "expect": "OK",
+   "name": "hex-upper-case",
+   "pubkey_hex": "031B84C5567B126440995D3ED5AABA0565D71E1834604819FF9C17F5E9D5DD078F",
+   "record_json": "{\"block_hash\":\"00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff\",\"block_height\":870000,\"date\":\"2026-06-30T00:00:00Z\",\"domain\":\"acme\",\"seq\":7,\"statement\":\"No warrant, gag, key compromise or coercion.\",\"v\":1}",
+   "rule": null,
+   "signature_der_hex": "3045022100D336085483C2DEA86794EF3404D7DC7BEEF56368FD380000E4D0D8F3AC3FE50C02200A4FFF49BA1173D1B66F8D4A335CB587C221DB79280DF23FC2B495B081C65E11"
+  },
+  {
+   "expect": "OK",
+   "name": "hex-blank-space-around",
+   "note": "blank space around the hex is ignored: U+0009-U+000D, U+0020, U+00A0, U+1680, U+2000-U+200A, U+2028, U+2029, U+202F, U+205F and U+3000",
+   "pubkey_hex": "\u00a0031b84c5567b126440995d3ed5aaba0565d71e1834604819ff9c17f5e9d5dd078f\u3000",
+   "record_json": "{\"block_hash\":\"00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff\",\"block_height\":870000,\"date\":\"2026-06-30T00:00:00Z\",\"domain\":\"acme\",\"seq\":7,\"statement\":\"No warrant, gag, key compromise or coercion.\",\"v\":1}",
+   "rule": null,
+   "signature_der_hex": "\t 3045022100d336085483c2dea86794ef3404d7dc7beef56368fd380000e4d0d8f3ac3fe50c02200a4fff49ba1173d1b66f8d4a335cb587c221db79280df23fc2b495b081c65e11\r\n"
+  },
+  {
+   "expect": "MALFORMED",
+   "name": "signature-0x-prefix",
+   "record_json": "{\"block_hash\":\"00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff\",\"block_height\":870000,\"date\":\"2026-06-30T00:00:00Z\",\"domain\":\"acme\",\"seq\":7,\"statement\":\"No warrant, gag, key compromise or coercion.\",\"v\":1}",
+   "rule": "E23",
+   "signature_der_hex": "0x3045022100d336085483c2dea86794ef3404d7dc7beef56368fd380000e4d0d8f3ac3fe50c02200a4fff49ba1173d1b66f8d4a335cb587c221db79280df23fc2b495b081c65e11"
+  },
+  {
+   "expect": "MALFORMED",
+   "name": "public-key-0x-prefix",
+   "pubkey_hex": "0x031b84c5567b126440995d3ed5aaba0565d71e1834604819ff9c17f5e9d5dd078f",
+   "record_json": "{\"block_hash\":\"00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff\",\"block_height\":870000,\"date\":\"2026-06-30T00:00:00Z\",\"domain\":\"acme\",\"seq\":7,\"statement\":\"No warrant, gag, key compromise or coercion.\",\"v\":1}",
+   "rule": "E23",
+   "signature_der_hex": "3045022100d336085483c2dea86794ef3404d7dc7beef56368fd380000e4d0d8f3ac3fe50c02200a4fff49ba1173d1b66f8d4a335cb587c221db79280df23fc2b495b081c65e11"
+  },
+  {
+   "expect": "MALFORMED",
+   "name": "signature-spaces-between-pairs",
+   "record_json": "{\"block_hash\":\"00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff\",\"block_height\":870000,\"date\":\"2026-06-30T00:00:00Z\",\"domain\":\"acme\",\"seq\":7,\"statement\":\"No warrant, gag, key compromise or coercion.\",\"v\":1}",
+   "rule": "E23",
+   "signature_der_hex": "30 45 02 21 00 d3 36 08 54 83 c2 de a8 67 94 ef 34 04 d7 dc 7b ee f5 63 68 fd 38 00 00 e4 d0 d8 f3 ac 3f e5 0c 02 20 0a 4f ff 49 ba 11 73 d1 b6 6f 8d 4a 33 5c b5 87 c2 21 db 79 28 0d f2 3f c2 b4 95 b0 81 c6 5e 11"
+  },
+  {
+   "expect": "MALFORMED",
+   "name": "public-key-spaces-between-pairs",
+   "pubkey_hex": "03 1b 84 c5 56 7b 12 64 40 99 5d 3e d5 aa ba 05 65 d7 1e 18 34 60 48 19 ff 9c 17 f5 e9 d5 dd 07 8f",
+   "record_json": "{\"block_hash\":\"00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff\",\"block_height\":870000,\"date\":\"2026-06-30T00:00:00Z\",\"domain\":\"acme\",\"seq\":7,\"statement\":\"No warrant, gag, key compromise or coercion.\",\"v\":1}",
+   "rule": "E23",
+   "signature_der_hex": "3045022100d336085483c2dea86794ef3404d7dc7beef56368fd380000e4d0d8f3ac3fe50c02200a4fff49ba1173d1b66f8d4a335cb587c221db79280df23fc2b495b081c65e11"
+  },
+  {
+   "expect": "MALFORMED",
+   "name": "signature-tab-inside",
+   "record_json": "{\"block_hash\":\"00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff\",\"block_height\":870000,\"date\":\"2026-06-30T00:00:00Z\",\"domain\":\"acme\",\"seq\":7,\"statement\":\"No warrant, gag, key compromise or coercion.\",\"v\":1}",
+   "rule": "E23",
+   "signature_der_hex": "30450221\t00d336085483c2dea86794ef3404d7dc7beef56368fd380000e4d0d8f3ac3fe50c02200a4fff49ba1173d1b66f8d4a335cb587c221db79280df23fc2b495b081c65e11"
+  },
+  {
+   "expect": "MALFORMED",
+   "name": "signature-byte-order-mark-around",
+   "record_json": "{\"block_hash\":\"00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff\",\"block_height\":870000,\"date\":\"2026-06-30T00:00:00Z\",\"domain\":\"acme\",\"seq\":7,\"statement\":\"No warrant, gag, key compromise or coercion.\",\"v\":1}",
+   "rule": "E23",
+   "signature_der_hex": "\ufeff3045022100d336085483c2dea86794ef3404d7dc7beef56368fd380000e4d0d8f3ac3fe50c02200a4fff49ba1173d1b66f8d4a335cb587c221db79280df23fc2b495b081c65e11\ufeff"
+  },
+  {
+   "expect": "MALFORMED",
+   "name": "public-key-next-line-around",
+   "pubkey_hex": "\u0085031b84c5567b126440995d3ed5aaba0565d71e1834604819ff9c17f5e9d5dd078f\u0085",
+   "record_json": "{\"block_hash\":\"00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff\",\"block_height\":870000,\"date\":\"2026-06-30T00:00:00Z\",\"domain\":\"acme\",\"seq\":7,\"statement\":\"No warrant, gag, key compromise or coercion.\",\"v\":1}",
+   "rule": "E23",
+   "signature_der_hex": "3045022100d336085483c2dea86794ef3404d7dc7beef56368fd380000e4d0d8f3ac3fe50c02200a4fff49ba1173d1b66f8d4a335cb587c221db79280df23fc2b495b081c65e11"
+  }
+ ],
+ "comment": "Canary records (SPEC 8, E23). record_json is the record exactly as read from the wire; parse it, then report the verdict at time 'now' with max_age_days. 'rule' names the erratum that decides the case, or is null for behaviour every conforming verifier already has. signature_der_hex, and pubkey_hex (the case's own, else this one), are given to the verifier exactly as written. All signatures use the published test key (private key 0x01 x 32), never a production key.",
+ "max_age_days": 35,
+ "now": "2026-07-01T00:00:00Z",
+ "pubkey_hex": "031b84c5567b126440995d3ed5aaba0565d71e1834604819ff9c17f5e9d5dd078f"
+}

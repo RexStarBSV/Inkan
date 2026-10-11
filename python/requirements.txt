@@ -1,0 +1,5 @@
+# Trust-signaling toolkit — Python reference dependencies.
+bitcoinx>=0.6            # secp256k1 keys + ECDSA DER sign/verify for the canary
+#
+# Nothing else is needed. The fingerprint digest, the Inkan glyph seed, and the Inkan Seal v3
+# renderer are all stdlib-only original work — no third-party code is bundled or imported.

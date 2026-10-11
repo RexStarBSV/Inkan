@@ -1,0 +1,405 @@
+{
+ "accept": [
+  {
+   "data": [
+    "0063",
+    "0061",
+    "0066",
+    "0065",
+    "0301"
+   ],
+   "if_passed_as_bytes": "ik191d9326afef7acdb46684756ccb7db2ec0329cafd74a03a95c567a4aeba3dbe6",
+   "kind": [],
+   "name": "decomposed-cafe",
+   "result_if_accepted": {
+    "code": "ik17288300319e48fa900f4c3f938e938fa4a8c6966f33a8cc8cde58ddd498b3bd1",
+    "data_nfc": [
+     "0063",
+     "0061",
+     "0066",
+     "00E9"
+    ],
+    "kind_nfc": [],
+    "resolve": [
+     48,
+     2,
+     63
+    ]
+   }
+  },
+  {
+   "data": [
+    "0063",
+    "0061",
+    "0066",
+    "00E9"
+   ],
+   "kind": [],
+   "name": "precomposed-cafe",
+   "result_if_accepted": {
+    "code": "ik17288300319e48fa900f4c3f938e938fa4a8c6966f33a8cc8cde58ddd498b3bd1",
+    "data_nfc": [
+     "0063",
+     "0061",
+     "0066",
+     "00E9"
+    ],
+    "kind_nfc": [],
+    "resolve": [
+     48,
+     2,
+     63
+    ]
+   }
+  },
+  {
+   "data": [
+    "0061",
+    "FDD0",
+    "0062",
+    "FFFE"
+   ],
+   "kind": [],
+   "name": "noncharacters-bmp",
+   "result_if_accepted": {
+    "code": "ik1eead6d4d264a9a350051bc23d6aa553ed745660b1e6a4c71105b85a3ef4aa4af",
+    "data_nfc": [
+     "0061",
+     "FDD0",
+     "0062",
+     "FFFE"
+    ],
+    "kind_nfc": [],
+    "resolve": [
+     48,
+     2,
+     63
+    ]
+   }
+  },
+  {
+   "data": [
+    "10FFFF",
+    "1FFFE"
+   ],
+   "kind": [],
+   "name": "noncharacters-supplementary",
+   "result_if_accepted": {
+    "code": "ik1a7aedb3e5ac34b1f26ca8fde44a0a4d48ca08099f94a051293eb7754f020562f",
+    "data_nfc": [
+     "10FFFF",
+     "1FFFE"
+    ],
+    "kind_nfc": [],
+    "resolve": [
+     48,
+     2,
+     63
+    ]
+   }
+  },
+  {
+   "data": [
+    "0078"
+   ],
+   "kind": [
+    "006E",
+    "0063",
+    "003A",
+    "FDD0",
+    "0040",
+    "0074",
+    "0033"
+   ],
+   "name": "noncharacter-in-kind",
+   "result_if_accepted": {
+    "code": "ik1bce96cae15f98f684e5b88fe182c3e0decdf3656f8e50b6c79fa3375edf62119",
+    "data_nfc": [
+     "0078"
+    ],
+    "kind_nfc": [
+     "006E",
+     "0063",
+     "003A",
+     "FDD0",
+     "0040",
+     "0074",
+     "0033"
+    ],
+    "resolve": [
+     24,
+     4,
+     23
+    ]
+   }
+  },
+  {
+   "data": [
+    "E000",
+    "F0000"
+   ],
+   "kind": [],
+   "name": "private-use",
+   "result_if_accepted": {
+    "code": "ik18054efce1e8ff6855c4a5fb237033ada1b5235dca0c1046288404a63faaaa927",
+    "data_nfc": [
+     "E000",
+     "F0000"
+    ],
+    "kind_nfc": [],
+    "resolve": [
+     48,
+     2,
+     63
+    ]
+   }
+  },
+  {
+   "adopter": [
+    "0061",
+    "0063",
+    "006D",
+    "0065",
+    "FDEF"
+   ],
+   "fingerprint_version": 1,
+   "name": "noncharacter-in-adopter",
+   "payload_utf8": "build-bytes-v1",
+   "result_if_accepted": {
+    "adopter_nfc": [
+     "0061",
+     "0063",
+     "006D",
+     "0065",
+     "FDEF"
+    ],
+    "fingerprint_hex": "0d36ed8a5935b6a2f4967f0123a77fa00e449e0644aa7c46c7b630e02aaf1a9e"
+   }
+  }
+ ],
+ "comment": "Text inputs and the Unicode database (SPEC 1, E14). Code points are hex. accept: every implementation MUST accept and return exactly result_if_accepted. either_or: an implementation whose Unicode database leaves any listed code point unassigned (General_Category Cn, other than the 66 noncharacters) MUST reject the input; every other implementation MUST return exactly result_if_accepted. reject_unless_assigned: MUST be rejected while the implementation's database leaves the code point unassigned; no accepted result is pinned yet. 'never' lists results produced today by implementations without this rule (informative). resolve is the SPEC 4 derivation of the kind as provided.",
+ "either_or": [
+  {
+   "data": [
+    "0065",
+    "0897",
+    "0327"
+   ],
+   "kind": [],
+   "name": "pepet-reorders-and-composes",
+   "never": [
+    "ik1883baf1d9618d2adecec5e4d8b5641edc22ff92568faa9050e00a6e109f282ef"
+   ],
+   "newest_code_point_assigned_in": "16.0",
+   "result_if_accepted": {
+    "code": "ik174047d56c5a5fae88e083d5c5cd6d2d52c07991d79f10070a88381a492d86351",
+    "data_nfc": [
+     "0229",
+     "0897"
+    ],
+    "kind_nfc": [],
+    "resolve": [
+     48,
+     2,
+     63
+    ]
+   }
+  },
+  {
+   "data": [
+    "0065",
+    "1AD0",
+    "0327"
+   ],
+   "kind": [],
+   "name": "u1ad0-reorders-and-composes",
+   "never": [
+    "ik19fde99f970fde7200137f534ea370dc4ad950ae86f51efc17f0a43ef6200bdf2"
+   ],
+   "newest_code_point_assigned_in": "17.0",
+   "result_if_accepted": {
+    "code": "ik107a893a8c984b6a864c8fc6a8c436609a8c5f3bf0eb332b63ed74e92921ac10e",
+    "data_nfc": [
+     "0229",
+     "1AD0"
+    ],
+    "kind_nfc": [],
+    "resolve": [
+     48,
+     2,
+     63
+    ]
+   }
+  },
+  {
+   "data": [
+    "0065",
+    "0897",
+    "0327",
+    "0065",
+    "1AD0",
+    "0327"
+   ],
+   "kind": [],
+   "name": "both",
+   "never": [
+    "ik13129b1260c64af311f0d8ed0388da9efafa47c2d5e1a13cd2f99ee8ec3ce22e4",
+    "ik13777f25d4a9ddd107d587252db4d48018ce7e63a2102b163205d2d70f617def2"
+   ],
+   "newest_code_point_assigned_in": "17.0",
+   "result_if_accepted": {
+    "code": "ik1cc0c4ee5425b088beb139da48ceb8cd1d9ae93444e3f5bdac8c797aabac05042",
+    "data_nfc": [
+     "0229",
+     "0897",
+     "0229",
+     "1AD0"
+    ],
+    "kind_nfc": [],
+    "resolve": [
+     48,
+     2,
+     63
+    ]
+   }
+  },
+  {
+   "data": [
+    "1611E",
+    "1611E"
+   ],
+   "kind": [],
+   "name": "gurung-khema-composes",
+   "never": [
+    "ik1b9d0b527c7530af24c9991371c5094702bb5b3c48e4263cb36306dbad4caca0f"
+   ],
+   "newest_code_point_assigned_in": "16.0",
+   "result_if_accepted": {
+    "code": "ik1f9f448ca0cd6d6abd9e34b47135aa6e919c00c70bd1d268d4c073ad248db1dfe",
+    "data_nfc": [
+     "16121"
+    ],
+    "kind_nfc": [],
+    "resolve": [
+     48,
+     2,
+     63
+    ]
+   }
+  },
+  {
+   "data": [
+    "0078"
+   ],
+   "kind": [
+    "006E",
+    "0073",
+    "003A",
+    "0065",
+    "0897",
+    "0327"
+   ],
+   "name": "pepet-in-kind",
+   "never": [
+    "ik160d5d3a8ad1b2f45c3f70979ebffac763a143f4f2419f635e7fc9aefa17f4f96"
+   ],
+   "newest_code_point_assigned_in": "16.0",
+   "result_if_accepted": {
+    "code": "ik10d1f18d042c3b68b4504a80cafa40af533f46e1c0d9792f02d20a98ad51e3d04",
+    "data_nfc": [
+     "0078"
+    ],
+    "kind_nfc": [
+     "006E",
+     "0073",
+     "003A",
+     "0229",
+     "0897"
+    ],
+    "resolve": [
+     48,
+     1,
+     15
+    ]
+   }
+  },
+  {
+   "adopter": [
+    "0061",
+    "0063",
+    "006D",
+    "0065",
+    "002D",
+    "0065",
+    "0897",
+    "0327"
+   ],
+   "fingerprint_version": 1,
+   "name": "pepet-in-adopter",
+   "never": [
+    "29aed98a90dc40db40d1a9407f5909f53374fb2a13af8e556e192bab231d27b7"
+   ],
+   "newest_code_point_assigned_in": "16.0",
+   "payload_utf8": "build-bytes-v1",
+   "result_if_accepted": {
+    "adopter_nfc": [
+     "0061",
+     "0063",
+     "006D",
+     "0065",
+     "002D",
+     "0229",
+     "0897"
+    ],
+    "fingerprint_hex": "f5f5e3bcf6ef11365a6a6452f8a18fc809a3cc7f00ec86cb9d4127290d9de123"
+   }
+  }
+ ],
+ "reject_unless_assigned": [
+  {
+   "data": [
+    "0061",
+    "0378"
+   ],
+   "kind": [],
+   "name": "u0378-in-data",
+   "unassigned_through": "17.0"
+  },
+  {
+   "data": [
+    "50000"
+   ],
+   "kind": [],
+   "name": "plane-5-in-data",
+   "unassigned_through": "17.0"
+  },
+  {
+   "data": [
+    "0078"
+   ],
+   "kind": [
+    "0078",
+    "0378",
+    "0040",
+    "0074",
+    "0033"
+   ],
+   "name": "u0378-in-kind",
+   "unassigned_through": "17.0"
+  },
+  {
+   "adopter": [
+    "0061",
+    "0063",
+    "006D",
+    "0065",
+    "0378"
+   ],
+   "fingerprint_version": 1,
+   "name": "u0378-in-adopter",
+   "payload_utf8": "build-bytes-v1",
+   "unassigned_through": "17.0"
+  }
+ ],
+ "rule": "E14"
+}

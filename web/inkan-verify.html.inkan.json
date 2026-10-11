@@ -1,0 +1,14 @@
+{
+  "adopter": "inkan",
+  "adopter_fingerprint": "a302dbd1d90e9d2bb5cf93c883885801e124cea1a009eba23d3d3d1f1bc44654",
+  "code": "ik1a99ce448c3f0b47ef4a66385776550a52f9441342ad0db8a7b6333214b7a4e55",
+  "fingerprint": "9e1d24a23fdfc875acf22f8190fff83f5e9b605ed38a274f00174aae4e5520a7",
+  "fingerprint_version": 1,
+  "kind": "code",
+  "nft": null,
+  "note": "sidecar seal; not yet inscribed on chain (nft records the 1Sat ordinal once it is)",
+  "seal_version": 3,
+  "size_bytes": 405784,
+  "target": "inkan-verify.html",
+  "version": "V1"
+}

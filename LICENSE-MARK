@@ -1,0 +1,29 @@
+Inkan mark — all rights reserved
+
+SPDX-License-Identifier: LicenseRef-Inkan-Mark
+Copyright (c) 2026 RexStarBSV. All rights reserved.
+
+The Inkan mark (the seal ring with its single glyph, and the icon tile drawn
+from it) is the Licensor's source identifier. It is NOT licensed under any
+licence in this repository: not Apache-2.0, not the Business Source License
+1.1 and therefore never MIT on its Change Date, not CC BY 4.0 and not CC0.
+This document is the text that "LicenseRef-Inkan-Mark" names, and it covers:
+
+  - the inline copy of the mark in web/inkan-verify.html and
+    web/inkan-verify.artifact.html (the LicenseRef-Inkan-Mark SPDX snippet in
+    each page), which is carved out of those pages' Apache-2.0 grant;
+  - every file of the mark's source artwork and brand guidance that carries
+    the header "SPDX-License-Identifier: LicenseRef-Inkan-Mark", wherever it
+    appears (those files are not part of every distribution).
+
+The one permission given: you may copy and redistribute a verifier page that
+embeds the mark, but only as an unmodified copy of that page, so that a copy
+of the Licensor's verifier still identifies where it came from. Anything else
+needs the Licensor's written permission. A changed or derived page must remove
+the mark or replace it with your own; describing your page as implementing or
+conforming to the Inkan Standard is welcome, presenting it as the Licensor's
+is not.
+
+No trademark right is granted by this document or by any other licence in this
+repository (see Apache-2.0 Section 6, BSL 1.1 and CC BY 4.0 Section 2(b)(2)).
+See LICENSING.md for the licence map.

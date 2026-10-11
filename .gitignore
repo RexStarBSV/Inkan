@@ -1,0 +1,13 @@
+__pycache__/
+*.pyc
+*.egg-info/
+.DS_Store
+build/
+dist/
+node_modules/
+
+# Gradle scratch (Kotlin reference implementation)
+.gradle/
+
+.venv/
+venv/

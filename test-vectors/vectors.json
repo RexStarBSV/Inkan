@@ -1,0 +1,112 @@
+{
+  "canary": {
+    "canonical_bytes_utf8": "{\"block_hash\":\"00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff\",\"block_height\":870000,\"date\":\"2026-06-30T00:00:00Z\",\"domain\":\"acme\",\"seq\":7,\"statement\":\"No warrant, gag, key compromise or coercion.\",\"v\":1}",
+    "privkey_hex": "0101010101010101010101010101010101010101010101010101010101010101",
+    "pubkey_hex": "031b84c5567b126440995d3ed5aaba0565d71e1834604819ff9c17f5e9d5dd078f",
+    "record": {
+      "block_hash": "00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff00ff",
+      "block_height": 870000,
+      "date": "2026-06-30T00:00:00Z",
+      "domain": "acme",
+      "seq": 7,
+      "statement": "No warrant, gag, key compromise or coercion.",
+      "v": 1
+    },
+    "signature_der_hex": "3045022100d336085483c2dea86794ef3404d7dc7beef56368fd380000e4d0d8f3ac3fe50c02200a4fff49ba1173d1b66f8d4a335cb587c221db79280df23fc2b495b081c65e11",
+    "verify": true
+  },
+  "fingerprint": [
+    {
+      "adopter": "acme",
+      "digest_hex": "d88657e80e283d5a44bd29b83cf8a93ec60729ec635e642b5454b8829bd3e3c6",
+      "payload_utf8": "build-bytes-v1",
+      "version": 1
+    },
+    {
+      "adopter": "acme",
+      "digest_hex": "ac3fccf0d72232d7cd17038116859fda0e6c8f406cf6dc49b3313288f0158458",
+      "payload_utf8": "build-bytes-v2",
+      "version": 1
+    },
+    {
+      "adopter": "otherapp",
+      "digest_hex": "1847961553e04828204efb7322f1763b8ade6faa14f6f78e30b43957a0c24ab1",
+      "payload_utf8": "build-bytes-v1",
+      "version": 1
+    },
+    {
+      "adopter": "acme",
+      "digest_hex": "25c1fc322f32cf05dd0355e2aff0f0f2441bd4057b5c4a9e8f40a307f79bb786",
+      "payload_utf8": "",
+      "version": 1
+    }
+  ],
+  "inkan": {
+    "comment": "Inkan Seal v3 (original engine), 224x224 RGB888. seed = inkan/v1 glyph domain; the engine takes sha256(seed). Renderer version is independent of the seed domain.",
+    "seal_version": 3,
+    "vectors": [
+      {
+        "data_utf8": "Hello",
+        "height": 224,
+        "kind": "",
+        "rgb888_sha256": "84d8d92167a91a139b00e804519d8e5ea3d0ad720394fc3aa5559ce3733a8a6b",
+        "seed_hex": "696e6b616e2f7631000048656c6c6f",
+        "width": 224
+      },
+      {
+        "data_utf8": "1BvBMSEYstWetqTFn5Au4m4GFg7xJaNVN2",
+        "height": 224,
+        "kind": "address",
+        "rgb888_sha256": "e41a237845f172634c2a59846557aa45cfcff8c7d142cd5b2ac36d54b7e48596",
+        "seed_hex": "696e6b616e2f7631000761646472657373314276424d53455973745765747154466e354175346d3447466737784a614e564e32",
+        "width": 224
+      },
+      {
+        "data_utf8": "npub1example",
+        "height": 224,
+        "kind": "identity",
+        "rgb888_sha256": "6e2eefe90517ddb0517c7bd45828d0d4c5c2655830311f303bee2c462ea8d76d",
+        "seed_hex": "696e6b616e2f763100086964656e746974796e707562316578616d706c65",
+        "width": 224
+      },
+      {
+        "data_utf8": "acct-0",
+        "height": 224,
+        "kind": "account",
+        "rgb888_sha256": "7f461c99ac51e5e58971a6b93ba31558305434b4ff11318cd13df3a3e2b9d40c",
+        "seed_hex": "696e6b616e2f763100076163636f756e74616363742d30",
+        "width": 224
+      },
+      {
+        "data_utf8": "signer-01",
+        "height": 224,
+        "kind": "signer",
+        "rgb888_sha256": "8d39502b0d2da25b39f6c89ade34713012a480bb2bc8cebb300bf6e1875aefb4",
+        "seed_hex": "696e6b616e2f763100067369676e65727369676e65722d3031",
+        "width": 224
+      }
+    ]
+  },
+  "inkan_image_example": {
+    "adopter": "acme",
+    "code": "ik1549f98f358b1ca9aa486a3fcbda7bd75bc19cf398b84028f71b25d8a3c797923",
+    "comment": "Release provenance (SPEC 7.1): anchor = Inkan(data = lower-case hex of SHA-256(file bytes), kind = 'code'); the inscription is its tagged Seal v3 PNG; the SPEC 7 fingerprint is published beside it and is not the inscribed seal. The file here is the bytes of payload_utf8.",
+    "file_sha256_hex": "192b667e91b33c6b0a4477aae3daf7ff2586be329b8b0c36a2d03343ae993199",
+    "fingerprint_hex": "d88657e80e283d5a44bd29b83cf8a93ec60729ec635e642b5454b8829bd3e3c6",
+    "fingerprint_version": 1,
+    "kind": "code",
+    "payload_utf8": "build-bytes-v1",
+    "resolve": [
+      24,
+      7,
+      42
+    ],
+    "rgb_sha256": "2ce37811263654414954449618db5c4fd6787c3320437ba53c3bd00cb6561184",
+    "scale": 8,
+    "seed_hex": "696e6b616e2f76310004636f646531393262363637653931623333633662306134343737616165336461663766663235383662653332396238623063333661326430333334336165393933313939",
+    "tag": {
+      "inkan-code": "ik1549f98f358b1ca9aa486a3fcbda7bd75bc19cf398b84028f71b25d8a3c797923",
+      "inkan-kind": "code"
+    }
+  }
+}

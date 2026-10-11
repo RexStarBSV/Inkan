@@ -1,0 +1,42 @@
+{
+  "name": "inkan",
+  "version": "1.0.0",
+  "description": "Inkan trust-signaling core - tamper fingerprints + the Inkan Seal v3 renderer, parity-tested against the Python reference",
+  "type": "module",
+  "main": "src/index.js",
+  "exports": {
+    ".": "./src/index.js",
+    "./canary": "./src/canary.js",
+    "./secp256k1": "./src/secp256k1.js",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "src",
+    "LICENSE-VERIFY",
+    "NOTICE"
+  ],
+  "scripts": {
+    "test": "node --test"
+  },
+  "license": "Apache-2.0",
+  "publishConfig": {
+    "access": "public"
+  },
+  "author": "RexStarBSV <RexStarBSV@protonmail.com>",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/RexStarBSV/Inkan.git",
+    "directory": "js"
+  },
+  "homepage": "https://github.com/RexStarBSV/Inkan",
+  "keywords": [
+    "inkan",
+    "brc-145",
+    "provenance",
+    "verification",
+    "canary",
+    "fingerprint",
+    "bsv"
+  ],
+  "types": "./src/index.d.ts"
+}
