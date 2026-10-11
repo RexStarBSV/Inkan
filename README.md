@@ -274,9 +274,10 @@ code, structure or output.
   reproduces them; with the specification, they are everything an independent implementation
   needs.
 - The standard is published as
-  [BRC-145](https://github.com/bsv-blockchain/BRCs/blob/master/apps/0145.md). Of the errata added
-  in revision 1.0.1, E14 to E24, all but E18 (which copies text from BRC-145 into SPEC.md) are not
-  yet in BRC-145; where the two texts differ, SPEC.md governs.
+  [BRC-145](https://github.com/bsv-blockchain/BRCs/blob/master/apps/0145.md). Revision 1.0.1 adds
+  errata E14 to E24. E18 only copies text from BRC-145 into SPEC.md; the other ten are proposed to
+  BRC-145 in [bsv-blockchain/BRCs#314](https://github.com/bsv-blockchain/BRCs/pull/314). Until that
+  is merged, follow SPEC.md where the two texts differ.
 
 ## Licensing
 
