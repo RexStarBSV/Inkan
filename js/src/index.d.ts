@@ -2,7 +2,7 @@
 // SPDX-FileCopyrightText: 2026 RexStarBSV
 // Inkan verification path (see LICENSE-VERIFY and NOTICE). Repository default licence: BSL 1.1.
 //
-// CANONICAL type declarations for the `inkan` npm package (this directory). They live beside the
+// CANONICAL type declarations for the `inkan-standard` npm package (this directory). They live beside the
 // runtime they describe, and an application that vendors the JS port copies this file with it.
 //
 // A declaration file is a promise about the runtime it describes. Kept anywhere but beside that

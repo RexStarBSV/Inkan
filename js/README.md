@@ -1,10 +1,25 @@
-# inkan (JavaScript port)
+<!-- SPDX-License-Identifier: Apache-2.0 -->
+<!-- SPDX-FileCopyrightText: 2026 RexStarBSV -->
+# inkan-standard
 
-Dependency-free, synchronous, browser + node (ESM). Implements **[../SPEC.md](../SPEC.md)**, held to
-the shared vectors in `../test-vectors/`:
+The JavaScript port of the [Inkan Standard](https://github.com/RexStarBSV/Inkan)
+([BRC-145](https://github.com/bsv-blockchain/BRCs/blob/master/apps/0145.md)): dependency-free,
+synchronous ES modules for Node and the browser. It computes Inkan anchors and `ik1` codes, draws
+Seal v3 seals, computes tamper fingerprints and verifies warrant canaries, held to the standard's
+shared conformance vectors.
 
+```sh
+npm install inkan-standard
 ```
-npm test        # every suite in test/, against the shared vectors
+
+```js
+import { inkanSeed, sha256, bytesToHex, sealPng, fingerprintHex, canaryStatus } from 'inkan-standard'
+
+const digest = sha256(inkanSeed('1BvBMSEYstWetqTFn5Au4m4GFg7xJaNVN2', 'address'))
+const code = 'ik1' + bytesToHex(digest)          // the ik1 code
+const png = sealPng(digest, 'address')            // the canonical seal, as PNG bytes
+const fp = fingerprintHex(fileBytes, 'myapp', 1)  // tamper fingerprint
+const state = canaryStatus(recordText, signatureHex, publicKeyHex)  // "OK", "STALE", "INVALID" or "MALFORMED"
 ```
 
 ## What's here
@@ -20,17 +35,24 @@ npm test        # every suite in test/, against the shared vectors
 | `src/sha256.js` | pure-JS synchronous SHA-256 | FIPS 180-4 vectors |
 | `src/index.js`, `src/index.d.ts` | the entry points, and their TypeScript declarations | — |
 
-All of it is original work implementing the Inkan Standard; there is no third-party code in this
-directory. Licensing: everything in `js/src/` (the `.js` modules and `index.d.ts`) is **Apache-2.0**
-(see ../NOTICE and ../LICENSE-VERIFY) — verify Inkan codes and seals, and generate your own, in any
-product, forever. The rest of the repository is multi-licence and most of it is not Apache-2.0; see
-../LICENSING.md.
+The vectors are in the repository's [`test-vectors/`](https://github.com/RexStarBSV/Inkan/tree/master/test-vectors),
+and the normative text is [`SPEC.md`](https://github.com/RexStarBSV/Inkan/blob/master/SPEC.md). In a
+checkout of the repository, `npm test` in `js/` runs every suite against them.
 
-Canary verification is exported as `canaryVerify` / `canaryStatus` / `canaryIsFresh` (`src/index.js`,
-or the unprefixed API at `inkan/canary`), and Seal v3 as `sealRgb` / `sealPng` / `sealFields`.
+Canary verification is exported as `canaryVerify` / `canaryStatus` / `canaryIsFresh` (from
+`inkan-standard`, or the unprefixed API at `inkan-standard/canary`), and Seal v3 as `sealRgb` / `sealPng` / `sealFields`.
 
 **Not in this port:** reading an `ik1` code back to its anchor, and checking a presented seal image
 (SPEC §6). This package writes the `ik1` code into a seal's PNG tag but has no reader for it, and
-there is no JS equivalent of `python/inkan_standard/verify.py`: no PNG decoder, no `verify_seal`,
-no `canonical_seal`. A JS caller can produce and check an anchor, but cannot verify a seal image it
-was handed; use the Python reference or the web verifier for that.
+there is no JavaScript equivalent of the Python reference's `verify.py`: no PNG decoder, no
+`verify_seal`, no `canonical_seal`. A JavaScript caller can produce and check an anchor, but cannot
+verify a seal image it was handed; use the Python reference (`pip install inkan-standard`) or the
+[web verifier](https://github.com/RexStarBSV/Inkan#check-an-inkan-in-your-browser) for that.
+
+## Licence
+
+All of it is original work implementing the Inkan Standard; there is no third-party code in this
+package. Everything in it (the `src/` modules, `index.d.ts`, this README and `package.json`) is
+**Apache-2.0**, as `NOTICE` and `LICENSE-VERIFY` state: verify Inkan codes and seals, and generate
+your own, in any product, forever. The rest of the Inkan repository is multi-licence and most of it
+is not Apache-2.0; see [LICENSING.md](https://github.com/RexStarBSV/Inkan/blob/master/LICENSING.md).

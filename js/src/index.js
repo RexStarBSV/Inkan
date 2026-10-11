@@ -20,7 +20,7 @@ export { sha256, bytesToHex } from './sha256.js'
 export { inkanSeed, INKAN_DOMAIN, rejectUnassigned, unicodeVersion } from './seed.js'
 export { domainPrefix, fingerprintDigest, fingerprintHex, checkAdopter, checkVersion } from './fingerprint.js'
 // Canary verification, namespaced: `verify` and `status` are generic words and would collide
-// with the seal vocabulary above. The unprefixed API is reachable at 'inkan/canary'.
+// with the seal vocabulary above. The unprefixed API is reachable at 'inkan-standard/canary'.
 export { verify as canaryVerify, status as canaryStatus, isFresh as canaryIsFresh,
          canonicalBytes as canaryCanonicalBytes, messageHash as canaryMessageHash,
          parseRecord as canaryParseRecord, checkRecord as canaryCheckRecord,

@@ -42,6 +42,14 @@ Covered files (the verification path and its minimal imports):
     kotlin/src/main/kotlin/inkan/SealV3.kt
     kotlin/src/main/kotlin/inkan/SealTables.kt
 
+  Package documentation and metadata, shipped inside the packages of the
+  verification path: the npm package `inkan-standard` carries the two files below,
+  and the PyPI distribution `inkan-standard` carries the README.md and
+  pyproject.toml that tools/build_pypi.py writes into it, which are covered
+  too (the tool itself is not):
+    js/README.md
+    js/package.json
+
 python/inkan_standard/anchor.py is not part of the verification path and remains under
 LICENSE (BSL 1.1). So do the test suites, the release and packaging tooling
 (including the builder that GENERATES the verifier page, as distinct from the

@@ -56,10 +56,13 @@ SOURCE_TREES = [("python/inkan_standard", "*.py"), ("js/src", "*.js"), ("js/src"
                 ("kotlin/src/main/kotlin/inkan", "*.kt")]
 
 # npm cannot include files above the package root, so these are copies. Copies drift.
+# Covered files that cannot carry an SPDX comment. A JSON manifest has no comment syntax, so
+# js/package.json declares its licence in its "license" field instead, which main() checks.
+MANIFESTS = ("js/package.json",)
 MIRRORED = [("LICENSE-VERIFY", "js/LICENSE-VERIFY"), ("NOTICE", "js/NOTICE")]
 
 
-_FILE_LINE = r"^\s+((?:python|js|kotlin|web)/\S+\.(?:py|js|ts|kt|html))\s*$"
+_FILE_LINE = r"^\s+((?:python|js|kotlin|web)/\S+\.(?:py|js|ts|kt|html)|js/README\.md|js/package\.json)\s*$"
 
 
 def notice_covered() -> set[str]:
@@ -276,6 +279,8 @@ def main() -> int:
         p = ROOT / rel
         if not p.is_file():
             fail.append(f"NOTICE lists {rel}, which does not exist")
+        elif rel in MANIFESTS:
+            continue
         elif APACHE not in p.read_text():
             fail.append(f"{rel} is in NOTICE as Apache-2.0 but carries no matching SPDX header")
 

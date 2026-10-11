@@ -35,11 +35,11 @@ image is never trusted; **the anchor is**.
   a version it doesn't implement rather than assume SHA-256.
 
 **Implementations.** Python (`python/inkan_standard/`) is the normative reference. A dependency-free JavaScript
-port (`js/`, the npm package `inkan` once published) is proven byte-exact by `npm test` against the
+port (`js/`, the npm package `inkan-standard`) is proven byte-exact by `npm test` against the
 shared vectors. A Kotlin port (`kotlin/`) is proven byte-exact against the same vectors by
 `cd kotlin && ./gradlew test` (JDK 17), for the parts it implements. An adopting application can
 vendor an in-sync copy under the `inkan/v1` anchor domain so seals render byte-identically offline.
-The Python verification path will be published on PyPI as `inkan-standard` (import name `inkan_standard`).
+The Python verification path is published on PyPI as `inkan-standard` (import name `inkan_standard`).
 
 **What each port covers, since "three-port parity" is easy to over-read.** Python implements every
 layer. JavaScript implements every layer *except* reading an `ik1` code back and presented-image

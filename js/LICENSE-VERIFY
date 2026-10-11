@@ -41,6 +41,14 @@ Version 2.0, whose full text follows this notice:
     kotlin/src/main/kotlin/inkan/SealV3.kt
     kotlin/src/main/kotlin/inkan/SealTables.kt
 
+  Package documentation and metadata, shipped inside the packages of the
+  verification path: the npm package `inkan-standard` carries the two files below,
+  and the PyPI distribution `inkan-standard` carries the README.md and
+  pyproject.toml that tools/build_pypi.py writes into it, which are covered
+  too (the tool itself is not):
+    js/README.md
+    js/package.json
+
 so that any party may verify — and, as a deliberate consequence of
 verification containing the canonical render, generate — Inkan seals,
 fingerprints, canaries, and codes in any product, without field-of-use

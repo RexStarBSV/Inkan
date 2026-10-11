@@ -141,33 +141,33 @@ Inkan is three signals, each checkable by anyone with no network connection and 
 
 ### Install
 
-No package has been published yet. The Python reference (Python 3.9 or later) will be published on
-PyPI as `inkan-standard`, imported as `inkan_standard`, and the JavaScript port (ES modules, Node or
-browser) on npm as `inkan`. Until this README links a published package, a package of either name
-is not from this project: do not install it. The Kotlin port (JVM, JDK 17) has no published
-artifact: copy the four engine files in `kotlin/src/main/kotlin/inkan/` into your project.
+| | Package | Install |
+|---|---|---|
+| **Python** 3.9 or later | [`inkan-standard` on PyPI](https://pypi.org/project/inkan-standard/), imported as `inkan_standard` | `pip install inkan-standard` |
+| **JavaScript** (ES modules, Node or browser) | [`inkan-standard` on npm](https://www.npmjs.com/package/inkan-standard) | `npm install inkan-standard` |
+| **Kotlin** (JVM, JDK 17) | no published artifact | copy the four engine files in `kotlin/src/main/kotlin/inkan/` into your project |
 
-Use a checkout instead:
+Both packages are the Apache-2.0 verification path and need nothing else installed. Signing your
+own warrant canary in Python needs `bitcoinx`: `pip install "inkan-standard[sign]"`. The bare PyPI
+name `inkan` belongs to an unrelated project; this project publishes only `inkan-standard`.
 
 ```sh
-git clone https://github.com/RexStarBSV/Inkan.git
-cd Inkan/python
+pip install inkan-standard
 python3 -m inkan_standard.verify selftest     # reproduces the 95 pinned vectors; no dependencies
 ```
 
-Run Python from `python/`, or put `python/` on `PYTHONPATH`; in JavaScript, import from
-`js/src/index.js`. Verification needs only each language's standard library. Signing your own
-warrant canary in Python needs `bitcoinx` (`pip install -r python/requirements.txt`).
+To work from a checkout instead, run Python from `python/` (or put `python/` on `PYTHONPATH`), and
+in JavaScript import from `js/src/index.js`.
 
 ### Command line (Python)
 
 ```sh
-cd python
+# after `pip install inkan-standard` (or from `python/` in a checkout)
 # the genuine seal and ik1 code for some data, and a check of a seal image you were shown
 python3 -m inkan_standard.verify seal --data 1BvBMSEYstWetqTFn5Au4m4GFg7xJaNVN2 --kind address --render seal.png --scale 8
 python3 -m inkan_standard.verify seal --data 1BvBMSEYstWetqTFn5Au4m4GFg7xJaNVN2 --kind address --seal shown.png
-# a file against its publisher's fingerprint (here, the verifier page against its own record)
-python3 -m inkan_standard.verify fingerprint --payload @../web/inkan-verify.html --adopter inkan --version 1 \
+# a file against its publisher's fingerprint (here, a downloaded verifier page against its own record)
+python3 -m inkan_standard.verify fingerprint --payload @inkan-verify.html --adopter inkan --version 1 \
     --expect a302dbd1d90e9d2bb5cf93c883885801e124cea1a009eba23d3d3d1f1bc44654
 # a warrant canary: the record exactly as published, and the key and signature as plain hex
 python3 -m inkan_standard.verify canary --record @canary.json --sig <hex> --pubkey <hex>
@@ -200,8 +200,8 @@ state = canary.status(rec, sig, public_key_hex)   # "OK", "STALE", "INVALID" or 
 ### JavaScript
 
 ```js
-// in a script at the root of a checkout; once the npm package is published, import from 'inkan'
-import { inkanSeed, sha256, bytesToHex, sealPng, fingerprintHex, canaryStatus } from './js/src/index.js'
+// after `npm install inkan-standard`; in a checkout, import from './js/src/index.js' instead
+import { inkanSeed, sha256, bytesToHex, sealPng, fingerprintHex, canaryStatus } from 'inkan-standard'
 
 const digest = sha256(inkanSeed('1BvBMSEYstWetqTFn5Au4m4GFg7xJaNVN2', 'address'))
 const code = 'ik1' + bytesToHex(digest)          // the ik1 code

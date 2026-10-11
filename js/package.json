@@ -1,5 +1,5 @@
 {
-  "name": "inkan",
+  "name": "inkan-standard",
   "version": "1.0.0",
   "description": "Inkan trust-signaling core - tamper fingerprints + the Inkan Seal v3 renderer, parity-tested against the Python reference",
   "type": "module",
