@@ -61,7 +61,7 @@ footer{margin-top:70px;padding-top:22px;border-top:1px solid var(--rule);color:v
   <p class="sub">A deterministic visual seal for data you must trust at a glance — an address, a
   signing key, a document. Its one job: <em>a human notices when it changes.</em> This document is
   self-contained and every seal below is rendered by the reference engine.</p>
-  <div class="meta">version 1.0 · frozen 2026-07-28 · revision 1.0.1 · extended-Golay coded · SHA-256 anchor ·
+  <div class="meta">version 1.0 · frozen 2026-07-28 · revision 1.0.2 · extended-Golay coded · SHA-256 anchor ·
   Python/JS/Kotlin byte-identical</div>
 </header>
 
@@ -243,5 +243,5 @@ engine, conformance vectors, and this document are all reproducible from the sam
 <tr><td><b>E24</b></td><td>2026-10-10</td><td>§6</td><td><b>A presented image MUST be a verifiable PNG (new §6.1), and only the chunks listed there are allowed.</b> E12 listed forbidden chunks, and PNG keeps adding new ones: a genuine seal carrying <code>cICP</code> (a colour space) or <code>eXIf</code> (an orientation) verified GENUINE in the reference while a browser drew it in other colours or rotated. Nothing fixed which files a verifier accepts, so the reference accepted files browsers do not open as written (bad CRCs, no <code>IEND</code>, an unknown critical chunk, bytes after the end), and the web verifier, which let the browser decode the image, read GENUINE for files the reference rejected: an animated GIF named <code>.png</code>, RGBA, 16-bit, 4-bit-palette and interlaced images. §6.1 fixes the signature, the CRCs, an allow-list (<code>IHDR</code>, <code>PLTE</code>, <code>IDAT</code>, <code>IEND</code>, <code>tEXt</code>, <code>zTXt</code>, <code>iTXt</code>, <code>pHYs</code>, <code>tIME</code>), chunk order, the header (8-bit, truecolour or indexed, no interlace), the palette and image-data rules, and requires the verifier to decide on its own decode. Every honest re-encoding of a seal still verifies. Implemented in the Python verifier and in the web verifier, which now decodes the presented file itself under these rules, inflate included, and uses the browser only to display the result; <code>png-profile-vectors.json</code> pins 35 cases, and both give every one its pinned verdict.</td></tr>
 </tbody></table>
 
-<footer>The Inkan Standard v1.0 · revision 1.0.1 · self-contained, seals rendered by the reference
+<footer>The Inkan Standard v1.0 · revision 1.0.2 · self-contained, seals rendered by the reference
 engine · original work, no third-party lineage · this document is inscription-ready · (c) 2026 RexStarBSV · CC BY 4.0 (LICENSE-SPEC) · requested attribution: “Inkan Standard, RexStarBSV”</footer></div>

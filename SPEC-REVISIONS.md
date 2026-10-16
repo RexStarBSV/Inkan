@@ -18,3 +18,4 @@ time, read `STALE` before).
 |---|---|---|---|
 | 1.0 | 2026-07-28 | `12cd41e98822ecdc47663910bbeda6018f235062f5a06d67db316ff8a4fefa30` | The frozen text, with errata E1–E13 (2026-07-31 and 2026-08-04). |
 | 1.0.1 | 2026-10-10 | `5ef0baafc83b1c6e5d80664c889df06a4b22d4e4d6450e81e24bd36983d5e53c` | §0 Permanence, which names the one exception E23 makes to P2; errata E14–E24; the Python reference package is named `inkan_standard`. |
+| 1.0.2 | 2026-10-16 | `73b315c852140ceecf68b65464591f810d63ef156f31188735db50872db3b56b` | The section on BRC-145 records Errata 3 (bsv-blockchain/BRCs#314, merged 2026-10-12), which carries errata E14–E24 into BRC-145 (E18 copies text from it); no erratum remains unreflected upstream. Wording only: no result changes. |

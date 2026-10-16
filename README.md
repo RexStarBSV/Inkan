@@ -265,7 +265,7 @@ code, structure or output.
 ## The standard
 
 - [SPEC.md](SPEC.md) is the normative, language-agnostic specification. Version 1.0 was frozen on
-  2026-07-28; this is revision 1.0.1 (2026-10-10). Its §0 states which results can never change.
+  2026-07-28; this is revision 1.0.2 (2026-10-16). Its §0 states which results can never change.
   [SPEC-REVISIONS.md](SPEC-REVISIONS.md) gives the SHA-256 of every revision, so you can cite the
   exact text you relied on.
 - [standard/inkan-standard.html](standard/inkan-standard.html) is the illustrated, self-contained

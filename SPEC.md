@@ -1,6 +1,6 @@
 # The Inkan Standard — normative specification
 
-**Version 1.0 · frozen 2026-07-28 · revision 1.0.1 (2026-10-10).** This is the frozen normative text
+**Version 1.0 · frozen 2026-07-28 · revision 1.0.2 (2026-10-16).** This is the frozen normative text
 of the Inkan standard: the anchor (§1), the code scheme (§2), the Seal v3 renderer (§3, §5), kinds
 (§4), and the fingerprint and canary formats (§7–§8) are locked. §0 states what "frozen" means:
 which results can never change, what a revision of this text may do, and how a new version is added
@@ -638,8 +638,8 @@ The anchor, codes, kinds, seal, fingerprint and on-chain provenance defined here
 form.
 
 BRC-145 carries the corrections in its body text; it has no errata section or change note of its own.
-The public record of each correction is the pull request to `bsv-blockchain/BRCs` that made it: two
-pull requests, each titled as errata to BRC-145 and each stating what it corrects and why. This
+The public record of each correction is the pull request to `bsv-blockchain/BRCs` that made it:
+three pull requests, each titled as errata to BRC-145 and each stating what it corrects and why. This
 document keeps them as dated errata (the table above) rather than folding them into its body.
 
 - **PR #212**, merged **2026-08-10**: **E4** (a kind that cannot be encoded as valid UTF-8 is
@@ -651,6 +651,15 @@ document keeps them as dated errata (the table above) rather than folding them i
   compute, with an erosion note; Security Considerations), **E11** (a record, key or signature that
   does not parse reads `MALFORMED`, never `INVALID`; §7.3) and **E13** (a verifier validates the
   record's shape before it reports `OK`; §7.3).
+- **PR #314** (Errata 3), merged **2026-10-12**: **E14** (a text input holding a code point that is
+  unassigned in the implementation's Unicode database is rejected), **E15** (the release-provenance
+  construction, §7.1 here), **E16** (the Seal v3 tables published as a data file and pinned by its
+  SHA-256), **E17** (the permanence rules, §0 here), **E19** (what a person types or pastes is
+  text), **E20** (the PNG is pixel-deterministic, not byte-deterministic), **E21** and **E22** (the
+  adopter-name profile in terms that never change, and a fingerprint version is a positive
+  integer), **E23** (the canary verifier's exact input rules) and **E24** (a presented image is a
+  verifiable PNG). It also links this document's repository, and cites revision 1.0.1 by its
+  SHA-256.
 
 BRC-145 §7.3 therefore defines the same five statuses as §8 here: `OK`, `STALE`, `INVALID`,
 `MALFORMED` and `UNSUPPORTED`. The second half of E2, that a verifier whose signature backend is
@@ -660,33 +669,13 @@ provided, §4), E5 (an unrecognised suffix leaves the tier at its default, §4) 
 use the full 32-byte anchor, §3). E9 retargets this document's own audit-evidence pointer and has no
 counterpart in BRC-145; nor has E18, which copies BRC-145 text into this document.
 
-The errata adopted on 2026-10-10 are not yet in BRC-145:
-
-- **E14**: BRC-145 §2 and §6 say only "NFC", with no rule for unassigned code points.
-- **E15**: BRC-145 §7.4 describes the code-provenance ordinal as the seal "of the build's
-  fingerprint (§6)". Until BRC-145 carries the correction, §7.1 here is the only statement of the
-  construction.
-- **E16**: BRC-145 §5 leaves the seal's pixel-level construction out of scope and pins no seal
-  pixels. §3 here and the tables file it pins are the complete definition.
-- **E17**: BRC-145 §9 still calls the presentation "swappable". The permanence rules of §0 here
-  govern.
-- **E19**: BRC-145 §2 distinguishes text from raw octets without saying which a typed input is.
-- **E20**: BRC-145 §5 still heads the PNG paragraph "Byte-deterministic PNG", while stating,
-  correctly, that the invariant is the decoded pixels.
-- **E21** and **E22**: BRC-145 §6 states E6's profile without defining "printable", and says only
-  that `version` defaults to 1.
-- **E23**: BRC-145 §7.2 and §7.3 leave the canonical escaping, the integer range, the date form and
-  high-S unspecified.
-- **E24**: BRC-145 §5 still gives E12's list of forbidden chunks, and no profile of the files a
-  verifier accepts.
-
-Every obligation that E1 to E13 add is in the published text, checked against `apps/0145.md` at
-`bsv-blockchain/BRCs` master, not against the pull requests. These errata remain unreflected
-upstream: E14, E15, E16, E17, E19, E20, E21, E22, E23, E24. Where the two documents differ, **this
-document governs**. Apart from the errata just listed, no anchor, code, canonical seal or signature
-differs between them.
+Every obligation that E1 to E24 add, but for E9 and E18, which have nothing in BRC-145 to be
+reflected in, is in the published text, checked against `apps/0145.md` at `bsv-blockchain/BRCs`
+master, not against the pull requests. These errata remain unreflected upstream: none. Where the
+two documents differ, **this document governs**; with every erratum reflected upstream, no anchor,
+code, canonical seal or signature is known to differ between them.
 
 ---
 
 (c) 2026 RexStarBSV. This specification is licensed under CC BY 4.0 (see LICENSE-SPEC).
-Requested attribution: "Inkan Standard, RexStarBSV" (with the revision used, e.g. 1.0.1).
+Requested attribution: "Inkan Standard, RexStarBSV" (with the revision used, e.g. 1.0.2).
