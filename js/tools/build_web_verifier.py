@@ -598,10 +598,15 @@ code{font-family:ui-monospace,Menlo,monospace;background:var(--bg);padding:1px 5
       <input type="text" id="cnheight" autocomplete="off">
     </div>
   </div>
+  <label for="cnhash">Block hash for the record's block (optional, 64 hex characters)</label>
+  <input type="text" id="cnhash" autocomplete="off" spellcheck="false">
   <p class="dek cardnote">The record cites a block height and hash, which is what stops it being
   backdated: it cannot have been signed before that block existed. Checking that needs a fact about
   the chain, and this page never goes online — so bring one. Enter a height you trust, from your own
-  node or a wallet, and the arithmetic happens here. Leave it blank to skip the check entirely.</p>
+  node or a wallet, and the arithmetic happens here. To check the hash the record cites, paste the hash of that same block
+  as your own node or a block explorer you trust reports it, and this page compares the two. A
+  mismatch is a loud failure. Leave the hash blank and the block-hash check is shown as <b>not
+  done</b>; it is never shown as passed. A height alone cannot show the cited block exists.</p>
   <div class="row"><button id="cngo">Check canary</button></div>
   <div class="result" id="cnresult">
     <div class="verdict" id="cnverdict"></div>
@@ -612,11 +617,15 @@ code{font-family:ui-monospace,Menlo,monospace;background:var(--bg);padding:1px 5
 <footer>
 <p><b>Keep this file.</b> It is entirely self-contained: save it locally and it keeps working with no
 network, no install and no server, exactly as it does now. That local copy is the durable form.</p>
-<p><b>Verify this page against its own standard.</b> Its release publishes a sidecar
-<code>inkan-verify.html.inkan.json</code> carrying an <code>adopter_fingerprint</code>. Drop this very
-file into the fingerprint card above, using the <code>adopter</code> and version from that sidecar,
-and compare. Use <code>adopter_fingerprint</code>, not <code>fingerprint</code>: the latter is a plain
-SHA-256 of the bytes and will not match what the card computes.</p>
+<p><b>Check this page against a fingerprint you obtained separately.</b> Drop this very file into the
+fingerprint card above, using the <code>adopter</code> and version from the release, and read its
+<code>adopter_fingerprint</code>. Compare that value with the one the release notes publish, not only
+the <code>inkan-verify.html.inkan.json</code> sidecar that travelled with your copy: a sidecar can be
+altered to match an altered page. Today the sidecar and the release notes are the reference. An
+on-chain inscription of each release fingerprint is planned and has not been made yet, so the chain is
+not yet a trust anchor for this page, and this page does not check anything against the chain itself.
+Use <code>adopter_fingerprint</code>, not <code>fingerprint</code> (a plain SHA-256 of the bytes),
+which will not match what the card computes.</p>
 <p>Inkan Seal <span id="ver"></span> · anchor + fingerprint layers · original work ·
 generated from the reference engine · self-contained &amp; inscription-ready</p>
 </footer>
@@ -1458,6 +1467,57 @@ __ENGINE__
     $('avcard').scrollIntoView({ behavior: still ? 'auto' : 'smooth', block: 'start' });
   };
 
+  // ---- block anchor: pure comparison of what the record cites with what the READER supplies ----
+  // Returns {height, hash, impossible, hashMismatch}. height and hash each carry a state:
+  // 'notdone' (nothing supplied, never a pass), 'bad', 'ok' or 'note'. The hash is compared as the
+  // reader typed it, lower-cased and trimmed; it must be 64 hex characters, or the check is 'bad'.
+  function blockAnchorCheck(rec, hRaw, hashRaw){
+    const out = { impossible: false, hashMismatch: false };
+    hRaw = (hRaw || '').trim(); hashRaw = (hashRaw || '').trim();
+    if (!hRaw){
+      out.height = { state: 'notdone', text: 'not done (no height supplied)' };
+    } else {
+      const known = parseInt(hRaw.replace(/[ ,_]/g, ''), 10);
+      if (!Number.isFinite(known) || known < 0){
+        out.height = { state: 'bad', text: 'that height is not a number.' };
+      } else if (typeof rec.block_height !== 'number'){
+        out.height = { state: 'bad', text: 'the record carries no numeric block_height.' };
+      } else if (rec.block_height > known){
+        out.impossible = true;
+        out.height = { state: 'bad', text: 'the record cites block ' + rec.block_height +
+          ', which is ahead of the ' + known + ' you supplied. A record cannot name a block that does ' +
+          'not exist yet \u2014 either your height is behind, or this is not genuine.' };
+      } else {
+        out.known = known;
+        out.height = { state: 'ok', text: 'height only: the cited block is not ahead of the height you supplied. ' +
+          'A height does not show that the cited block hash is real.' };
+      }
+    }
+    if (!hashRaw){
+      out.hash = { state: 'notdone', text: 'NOT DONE \u2014 no block hash supplied. This is not a pass: nothing ' +
+        'here shows the cited block exists or that the record was not backdated.' };
+    } else if (typeof rec.block_hash !== 'string' || !rec.block_hash){
+      out.hash = { state: 'bad', text: 'the record carries no block_hash to compare with.' };
+      out.hashMismatch = true;
+    } else {
+      const mine = hashRaw.toLowerCase().replace(/^0x/, '');
+      const theirs = rec.block_hash.toLowerCase();
+      if (!/^[0-9a-f]{64}$/.test(mine)){
+        out.hash = { state: 'bad', text: 'what you pasted is not a block hash (it must be 64 hex characters).' };
+        out.hashMismatch = true;
+      } else if (mine !== theirs){
+        out.hash = { state: 'bad', text: 'MISMATCH. The record cites block hash ' + rec.block_hash +
+          ' but you supplied ' + mine + '. Either you pasted the hash of a different block, or this record ' +
+          'does not match the chain you trust. Do not rely on it.' };
+        out.hashMismatch = true;
+      } else {
+        out.hash = { state: 'ok', text: 'matches the hash you supplied. That hash came from you; this page ' +
+          'cannot check it against the chain, so the check is only as good as your source.' };
+      }
+    }
+    return out;
+  }
+
   // ---- canary layer: has the publisher gone quiet? ----
   $('cngo').onclick = () => {
     const res = $('cnresult'), verdict = $('cnverdict'), kv = $('cnkv');
@@ -1517,31 +1577,26 @@ __ENGINE__
     // state and will not fetch one; a canary you cannot check offline is a canary you cannot check
     // on the machine where it matters most.
     const hRaw = $('cnheight').value.trim();
+    const hashRaw = $('cnhash').value.trim();
+    const ba = blockAnchorCheck(rec, hRaw, hashRaw);
     let blockNote = [];
-    let impossible = false;
-    if (hRaw){
-      const known = parseInt(hRaw.replace(/[ ,_]/g, ''), 10);
-      if (!Number.isFinite(known) || known < 0){
-        blockNote = [BR, bold('block check:'), ' that height is not a number.'];
-      } else if (typeof rec.block_height !== 'number'){
-        blockNote = [BR, bold('block check:'), ' the record carries no numeric block_height.'];
-      } else if (rec.block_height > known){
-        impossible = true;
-        blockNote = [BR, bold('block check:'), ' ', tone('the record cites block ' +
-          rec.block_height + ', which is ahead of the ' + known + ' you supplied. A record cannot ' +
-          'name a block that does not exist yet — either your height is behind, or this is not genuine.', 'bad')];
-      } else {
-        const gap = known - rec.block_height;
-        const days = (gap * 10 / 60 / 24);
-        blockNote = [BR, bold('block check:'), ' ' + gap.toLocaleString() + ' blocks since the cited tip, ' +
-          'roughly ' + days.toFixed(1) + ' days at 10 min/block. Signed no earlier than block ' +
-          rec.block_height + '.'];
-        if (ageDays !== null && days > 1 && Math.abs(days - ageDays) > Math.max(7, ageDays * 0.5)){
-          blockNote.push(' ', tone('That disagrees with the stated date (' +
-            ageDays + ' days) — worth questioning.', 'bad'));
-        }
+    const impossible = ba.impossible || ba.hashMismatch;
+    if (ba.height.state === 'ok'){
+      const gap = ba.known - rec.block_height;
+      const days = (gap * 10 / 60 / 24);
+      blockNote = [BR, bold('block height check:'), ' ' + gap.toLocaleString() + ' blocks since the cited tip, ' +
+        'roughly ' + days.toFixed(1) + ' days at 10 min/block. Signed no earlier than block ' +
+        rec.block_height + '. ' + ba.height.text];
+      if (ageDays !== null && days > 1 && Math.abs(days - ageDays) > Math.max(7, ageDays * 0.5)){
+        blockNote.push(' ', tone('That disagrees with the stated date (' +
+          ageDays + ' days) \u2014 worth questioning.', 'bad'));
       }
+    } else {
+      blockNote = [BR, bold('block height check:'), ' ',
+        ba.height.state === 'bad' ? tone(ba.height.text, 'bad') : ba.height.text];
     }
+    blockNote.push(BR, bold('block hash check:'), ' ',
+      ba.hash.state === 'bad' ? tone(ba.hash.text, 'bad') : ba.hash.text);
     verdict.className = 'verdict ' + (impossible ? 'bad' : (fresh ? 'good' : (sigOK ? '' : 'bad')));
     verdict.textContent = (fresh ? '\u2713 OK' : (sigOK ? '\u25cf ' + state : '\u2717 INVALID')) +
       ' \u2014 ' + ({

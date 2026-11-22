@@ -344,21 +344,32 @@ def verify_seal(data, kind: str = "", presented_png: Optional[bytes] = None) -> 
     detail = {k: truth[k] for k in ("kind", "code", "short_code", "digest_hex", "rgb_sha256")}
     detail["reserved_kind"] = kind in _seal.KINDS
     if presented_png is None:
-        return Result(True, "recomputed canonical seal (no image to compare)", detail)
+        # Nothing was presented, so NOTHING was verified: this recomputes the canonical code only.
+        # A verify function must not report that as a pass -- a programmatic caller keying on `ok`
+        # (the MCP tool, a port, the web verifier) would read it as GENUINE (audit F MED-2). Fail
+        # closed: ok=False with an explicit INDETERMINATE verdict, distinct from a real MISMATCH. To
+        # COMPUTE a seal without verifying, call canonical_seal() (or the `generate` tool).
+        detail["verdict"] = "INDETERMINATE"
+        return Result(False, "INDETERMINATE: no seal image presented -- recomputed the canonical code "
+                             "for this (data, kind) but verified nothing. Pass the seal PNG to verify, "
+                             "or use canonical_seal() to compute.", detail)
     try:
         png = decode_png_rgb(presented_png)
     except ValueError as e:
+        detail["verdict"] = "REJECTED"
         return Result(False, f"presented image rejected: {e}", detail)
     native = _downscale_to_native(png)
     detail["presented_size"] = f"{png.width}x{png.height}"
     if native is _NON_UNIFORM:
         detail["tampered_blocks"] = True
+        detail["verdict"] = "TAMPERED"
         return Result(False,
                       f"presented image is {png.width}x{png.height}, a valid "
                       f"{png.width // _seal.CANVAS}x upscale of {_seal.CANVAS}, but its pixel blocks "
                       f"are not uniform: pixels WITHIN blocks differ, so this is not an upscale of "
                       f"any seal. A clean upscale repeats each pixel exactly.", detail)
     if native is None:
+        detail["verdict"] = "WRONG_SIZE"
         return Result(False,
                       f"presented image is {png.width}x{png.height}, not an integer multiple of "
                       f"{_seal.CANVAS}: cannot be the genuine seal", detail)
@@ -369,6 +380,7 @@ def verify_seal(data, kind: str = "", presented_png: Optional[bytes] = None) -> 
         # the image CLAIMS a code in its metadata -- cross-check it against the truth (never trust it)
         detail["embedded_code"] = tagv["code"]
         detail["embedded_code_matches"] = (tagv["code"] == truth["code"])
+    detail["verdict"] = "GENUINE" if match else "MISMATCH"
     return Result(match,
                   "GENUINE: presented seal is the exact render for this (data, kind)" if match
                   else "MISMATCH: presented seal is NOT the genuine render (possible lookalike)",
@@ -387,30 +399,46 @@ def verify_fingerprint(payload, adopter: str, expect_hex: Optional[str] = None,
                           adopter, version)
     detail = {"adopter": adopter, "version": version, "fingerprint_hex": got}
     if expect_hex is None:
-        return Result(True, "recomputed fingerprint", detail)
+        # No expected value, so nothing was verified -- fail closed like verify_seal (audit F MED-2):
+        # a caller keying on `ok` must not read "match". The computed value is in detail; to COMPUTE a
+        # fingerprint without verifying, call fingerprint_hex().
+        detail["verdict"] = "COMPUTED"
+        return Result(False, "COMPUTED: no expected value given -- recomputed the fingerprint but "
+                             "verified nothing. Pass the expected hex to verify, or use "
+                             "fingerprint_hex() to compute.", detail)
     match = got.lower() == expect_hex.strip().lower()
     detail["expected_hex"] = expect_hex.strip().lower()
+    detail["verdict"] = "MATCH" if match else "MISMATCH"
     return Result(match, "MATCH" if match else "MISMATCH: fingerprint does not equal the claimed value",
                   detail)
 
 
 # ----------------------------------------------------------------- canary
 def verify_canary(record, signature_hex: str, pubkey_hex: str,
-                  max_age_days: int = 35) -> Result:
+                  max_age_days: int = 35, now=None,
+                  resolved_block_hash: Optional[str] = None, tip_height: Optional[int] = None,
+                  max_anchor_age_blocks: Optional[int] = None) -> Result:
     """`record` is an object, or its wire form (bytes or text), which must then be exactly the
-    record's canonical bytes (SPEC §8 E23)."""
+    record's canonical bytes (SPEC §8 E23).
+
+    When the caller supplies chain facts it resolved ITSELF -- `resolved_block_hash` (the canonical
+    hash at the record's block_height) and the current `tip_height` -- the record's chain anchor is
+    checked (SPEC §8 anti-retraction): a false or stale/replayed anchor makes the result NOT ok even
+    when the signature and date are fine. Without those facts the anchor is reported as NOT_CHECKED and
+    the verdict rests on the signature + date only, as before; this library never fetches the chain.
+    `now` overrides the clock used for date-freshness (default: the real current time)."""
     try:
         from . import canary
     except Exception as e:  # pragma: no cover
         return Result(False, f"canary module unavailable: {e}", {})
     try:
-        st = canary.status(record, signature_hex, pubkey_hex, max_age_days=max_age_days)
+        st = canary.status(record, signature_hex, pubkey_hex, now=now, max_age_days=max_age_days)
     except ModuleNotFoundError:
         return Result(False, "canary signature verification needs `bitcoinx` (not installed)",
                       {"hint": "pip install bitcoinx"})
     except canary.UnsupportedCanaryVersion as e:
         # Unknown record version (SPEC §8 E2): UNSUPPORTED, explicitly not INVALID.
-        return Result(False, "UNSUPPORTED: %s" % e, {"status": "UNSUPPORTED"})
+        return Result(False, "UNSUPPORTED: %s" % e, {"status": "UNSUPPORTED", "anchor": canary.NOT_CHECKED})
     detail = {"status": st}
     try:
         rec, _wire = canary._record_of(record)
@@ -423,7 +451,21 @@ def verify_canary(record, signature_hex: str, pubkey_hex: str,
             canary.verify(record, signature_hex, pubkey_hex)
         except canary.MalformedCanaryInput as e:
             detail["reason"] = str(e)
-    return Result(st == "OK", f"canary status: {st}", detail)
+    # Chain anchor (anti-retraction) -- only when the caller supplied the facts; never fetched here. A
+    # MALFORMED record has no checkable anchor (its shape is already bad), so skip it there.
+    anchor = canary.NOT_CHECKED
+    ok = (st == "OK")
+    if resolved_block_hash is not None and tip_height is not None and st != "MALFORMED":
+        kw = {} if max_anchor_age_blocks is None else {"max_anchor_age_blocks": max_anchor_age_blocks}
+        try:
+            anchor = canary.check_anchor(record, resolved_block_hash, tip_height, **kw)
+        except canary.MalformedCanaryInput as e:
+            anchor = canary.ANCHOR_MALFORMED
+            detail.setdefault("reason", str(e))
+        ok = ok and (anchor == canary.ANCHORED)
+    detail["anchor"] = anchor
+    summary = f"canary status: {st}" + ("" if anchor == canary.NOT_CHECKED else f"; anchor: {anchor}")
+    return Result(ok, summary, detail)
 
 
 # ----------------------------------------------------------------- self-verification
@@ -470,6 +512,10 @@ def selftest(vectors_path: Optional[str] = None) -> Result:
 # ----------------------------------------------------------------- savable report
 VERIFY_VERSION = "1.0"
 
+#: Headline marker for a report verdict. PASS is affirmed; INDETERMINATE verified nothing (a
+#: no-comparand "compute", F MED-2) and must not wear a ❌; everything else is a failure.
+_VERDICT_MARK = {"PASS": "✅", "INDETERMINATE": "ⓘ"}
+
 
 def build_report(command: str, inputs: dict, res: "Result") -> dict:
     """A self-contained, archivable record of one verification: what was checked, when, by
@@ -484,7 +530,10 @@ def build_report(command: str, inputs: dict, res: "Result") -> dict:
         "generated_utc": datetime.datetime.now(datetime.timezone.utc).isoformat(timespec="seconds"),
         "command": command,
         "inputs": inputs,
-        "verdict": "PASS" if res.ok else "FAIL",
+        # A real verify is PASS/FAIL; a no-comparand "compute" (F MED-2) is neither -- it verified
+        # nothing, so the report must not record it as a FAIL (nothing failed) nor a PASS.
+        "verdict": ("INDETERMINATE" if res.detail.get("verdict") in ("INDETERMINATE", "COMPUTED")
+                    else ("PASS" if res.ok else "FAIL")),
         "summary": res.summary,
         "detail": detail,
     }
@@ -494,7 +543,7 @@ def _report_markdown(rep: dict) -> str:
     lines = [
         f"# Inkan verification report",
         "",
-        f"**Verdict:** {'✅ PASS' if rep['verdict'] == 'PASS' else '❌ FAIL'} — {rep['summary']}",
+        f"**Verdict:** {_VERDICT_MARK.get(rep['verdict'], '❌')} {rep['verdict']} — {rep['summary']}",
         "",
         f"- Generated: `{rep['generated_utc']}`",
         f"- Command: `{rep['command']}`",
@@ -593,6 +642,13 @@ def main(argv=None) -> int:
     c.add_argument("--sig", required=True, help="signature hex")
     c.add_argument("--pubkey", required=True, help="signer public key hex")
     c.add_argument("--max-age-days", type=int, default=35)
+    c.add_argument("--anchor-hash", help="the canonical block hash YOU resolved at the record's "
+                   "block_height (this tool never fetches it); enables the SPEC §8 anti-retraction "
+                   "anchor check. Give with --tip-height")
+    c.add_argument("--tip-height", type=int, help="your current chain-tip height, for the anchor "
+                   "recency check; give with --anchor-hash")
+    c.add_argument("--max-anchor-age-blocks", type=int, default=None,
+                   help="how many blocks old the anchor may be before it reads stale (default ~35 days)")
 
     sub.add_parser("selftest", parents=[common], help="prove this verifier renders the canonical standard")
 
@@ -635,11 +691,26 @@ def main(argv=None) -> int:
         # rule 4); only whitespace around it, such as the line feed that ends a file, is dropped.
         wire = _read_data(args.record)
         wire = (wire.encode("utf-8") if isinstance(wire, str) else wire).strip(b" \t\r\n")
-        res = verify_canary(wire, args.sig, args.pubkey, args.max_age_days)
-        inputs = {"record": args.record, "pubkey": args.pubkey, "max_age_days": args.max_age_days}
+        if (args.anchor_hash is None) != (args.tip_height is None):
+            print("✗ --anchor-hash and --tip-height must be given together (this tool never fetches "
+                  "the chain; resolve both yourself)")
+            return 2
+        res = verify_canary(wire, args.sig, args.pubkey, args.max_age_days,
+                            resolved_block_hash=args.anchor_hash, tip_height=args.tip_height,
+                            max_anchor_age_blocks=args.max_anchor_age_blocks)
+        inputs = {"record": args.record, "pubkey": args.pubkey, "max_age_days": args.max_age_days,
+                  "anchor_hash": args.anchor_hash or "(none)",
+                  "tip_height": args.tip_height if args.tip_height is not None else "(none)"}
     else:
         res = selftest()
         inputs = {}
+
+    # "Compute mode" = the command recomputed a value but verified nothing against it, so its verdict is
+    # INDETERMINATE (seal, no --seal) or COMPUTED (fingerprint, no --expect). This is derived from the
+    # VERDICT, never from whether --seal/--expect was truthy: an EMPTY --expect "" still triggers a real
+    # comparison that can MISMATCH, and that failure must NOT be remapped to a ✓ / exit 0 (F MED-2 review
+    # MED-1). A real GENUINE/MISMATCH/REJECTED/TAMPERED/WRONG_SIZE/MATCH never enters compute mode.
+    compute_mode = res.detail.get("verdict") in ("INDETERMINATE", "COMPUTED")
 
     if args.report:
         rpath = args.report
@@ -654,12 +725,16 @@ def main(argv=None) -> int:
                           "detail": {k: v for k, v in res.detail.items()
                                      if k not in ("rgb", "png")}}, indent=2))
     else:
-        mark = "✓" if res.ok else "✗"
+        # In compute mode nothing was verified (no --seal / --expect): report it as informational, not
+        # a ✓ that reads like GENUINE (F MED-2). --json above stays honest (ok:false + verdict).
+        mark = "ⓘ" if compute_mode else ("✓" if res.ok else "✗")
         print(f"{mark} {res.summary}")
         for k, v in res.detail.items():
             if k not in ("rgb", "png"):
                 print(f"    {k}: {v}")
-    return 0 if res.ok else 1
+    # Exit 0 when a verify passed OR when the user only asked to compute/render (compute mode); a failed
+    # verify is exit 1. A machine wanting the verdict reads --json (honest) rather than the exit code.
+    return 0 if (res.ok or compute_mode) else 1
 
 
 if __name__ == "__main__":

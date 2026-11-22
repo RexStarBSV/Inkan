@@ -21,7 +21,7 @@ reference implementations; [The standard](#the-standard) explains how the two te
   <tr>
     <td align="center"><img src="examples/seals/address.png" width="140" alt="The Inkan seal of a payment address"><br><b>Payment address</b><br><sub>a BSV address, kind <code>address</code></sub><br><code>ik112cf1aaca7ef5079</code></td>
     <td align="center"><img src="examples/seals/identity.png" width="140" alt="The Inkan seal of an identity key"><br><b>Identity key</b><br><sub>a public key, kind <code>identity</code></sub><br><code>ik143fa06e1de2c970b</code></td>
-    <td align="center"><img src="web/inkan-verify.html.inkan.png" width="140" alt="The Inkan seal of this repository's verifier page"><br><b>This verifier page</b><br><sub>its SHA-256, kind <code>code</code></sub><br><code>ik1a99ce448c3f0b47e</code></td>
+    <td align="center"><img src="web/inkan-verify.html.inkan.png" width="140" alt="The Inkan seal of this repository's verifier page"><br><b>This verifier page</b><br><sub>its SHA-256, kind <code>code</code></sub><br><code>ik111cba4184c83fd5d7</code></td>
   </tr>
 </table>
 
@@ -39,7 +39,7 @@ so what tells their seals apart comes from the data alone.
 | Inkan | `Inkan` | (generic) | `ik12f16016e5dd60785570b64c1438c213b1467d0f9a085727fe78391484ad586e2` |
 | Payment address | `1BvBMSEYstWetqTFn5Au4m4GFg7xJaNVN2` | `address` | `ik112cf1aaca7ef50793d990e94c9ae889af6f9e8fdfc28b2f9a72d4028bde05dcd` |
 | Identity key | `031b84c5567b126440995d3ed5aaba0565d71e1834604819ff9c17f5e9d5dd078f` | `identity` | `ik143fa06e1de2c970bee94cb96cc269d3831d76fa80f5f8ce5cf68f5b9acf723e7` |
-| This verifier page | `9e1d24a23fdfc875acf22f8190fff83f5e9b605ed38a274f00174aae4e5520a7` | `code` | `ik1a99ce448c3f0b47ef4a66385776550a52f9441342ad0db8a7b6333214b7a4e55` |
+| This verifier page | `59e30a07f86d1837f301baa43ceddbacc985d12eb9d9aa7d69bd2351253a02b0` | `code` | `ik111cba4184c83fd5d7b3dd52755d1b155c297b4e19706595c77b93267d4c2b5db` |
 
 In the verifier, enter the data, choose the kind ("(generic)" is the empty default kind) and
 compare the code; or download a seal image and choose it under "Seal image to compare". The
@@ -96,10 +96,10 @@ values describe `inkan-verify.html` as published in this release, Inkan Standard
 
 | | |
 |---|---|
-| File size | 405,784 bytes |
-| SHA-256 | `9e1d24a23fdfc875acf22f8190fff83f5e9b605ed38a274f00174aae4e5520a7` |
-| Adopter fingerprint (adopter `inkan`, version 1) | `a302dbd1d90e9d2bb5cf93c883885801e124cea1a009eba23d3d3d1f1bc44654` |
-| `ik1` code | `ik1a99ce448c3f0b47ef4a66385776550a52f9441342ad0db8a7b6333214b7a4e55` |
+| File size | 409,308 bytes |
+| SHA-256 | `59e30a07f86d1837f301baa43ceddbacc985d12eb9d9aa7d69bd2351253a02b0` |
+| Adopter fingerprint (adopter `inkan`, version 1) | `1ce8b5898928f7f98cbca3f56da9db4fec0eef8453097c1a801382ebc6f4e759` |
+| `ik1` code | `ik111cba4184c83fd5d7b3dd52755d1b155c297b4e19706595c77b93267d4c2b5db` |
 
 **With your computer's own tools.** This is the strongest check, because it does not rely on the
 file you are checking. Compute the file's SHA-256 and compare it with the value above:
@@ -125,9 +125,13 @@ above, not from PowerShell's output: the same characters in capitals are differe
 give a different code.
 
 The same values are in [web/inkan-verify.html.inkan.json](web/inkan-verify.html.inkan.json) beside
-the page and in the release notes, and they will also be recorded on the BSV blockchain; this
-section will link to that record once it exists. A later release of the page has new values,
-published the same way.
+the page and in the release notes. **There is no on-chain record yet.** An inscription of each
+release's fingerprint on the BSV blockchain is planned but has not been made, so today the sidecar in
+this repository is the only reference. A sidecar that travels with a downloaded page could be altered to
+match an altered page, so compare against the copy in this repository or in the release notes, and
+against a second copy of the verifier that you downloaded yourself. Once a release is inscribed, this
+section will give the inscription id, and the inscribed record, which no one can rewrite, will become the
+anchor to confirm against.
 
 ## For developers
 
@@ -168,7 +172,7 @@ python3 -m inkan_standard.verify seal --data 1BvBMSEYstWetqTFn5Au4m4GFg7xJaNVN2 
 python3 -m inkan_standard.verify seal --data 1BvBMSEYstWetqTFn5Au4m4GFg7xJaNVN2 --kind address --seal shown.png
 # a file against its publisher's fingerprint (here, a downloaded verifier page against its own record)
 python3 -m inkan_standard.verify fingerprint --payload @inkan-verify.html --adopter inkan --version 1 \
-    --expect a302dbd1d90e9d2bb5cf93c883885801e124cea1a009eba23d3d3d1f1bc44654
+    --expect 1ce8b5898928f7f98cbca3f56da9db4fec0eef8453097c1a801382ebc6f4e759
 # a warrant canary: the record exactly as published, and the key and signature as plain hex
 python3 -m inkan_standard.verify canary --record @canary.json --sig <hex> --pubkey <hex>
 ```

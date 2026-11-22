@@ -318,3 +318,89 @@ def status(record, signature_hex: str, pubkey_hex: str,
     if not is_fresh(record, now, max_age_days):
         return "STALE"
     return "OK"
+
+
+# ----------------------------------------------------------------- chain anchor (anti-retraction)
+#: A canary's block_height/block_hash anchor proves it was signed AFTER that block existed (it cannot
+#: name a block's hash before the block is mined) and, checked against a recent chain tip, that it is
+#: not an OLD record REPLAYED to mask a canary that should have changed -- the anti-retraction property
+#: the format carries (see the module docstring). Resolving the hash needs the chain, which THIS
+#: LIBRARY NEVER TOUCHES: the caller resolves it (own node, SPV, a block explorer) and passes it in.
+#: The default window is ~`max_age_days` of blocks at the ~10-minute target (35 * 144).
+DEFAULT_MAX_ANCHOR_AGE_BLOCKS = 35 * 144
+
+ANCHORED = "ANCHORED"
+ANCHOR_MISMATCH = "ANCHOR_MISMATCH"
+ANCHOR_STALE = "ANCHOR_STALE"
+ANCHOR_FUTURE = "ANCHOR_FUTURE"
+#: Surfaced by the verify_canary fold layer, not by check_anchor itself: the caller's chain facts did
+#: not parse, and no chain facts were supplied, respectively. Named so a consumer can branch on them
+#: rather than on bare strings.
+ANCHOR_MALFORMED = "ANCHOR_MALFORMED"
+NOT_CHECKED = "NOT_CHECKED"
+
+
+def _norm_hex(text):
+    """The lowercase hex of `text` with the blanks E23 ignores stripped, or None if it is not
+    hexadecimal text."""
+    m = _HEX_RE.fullmatch(text) if isinstance(text, str) else None
+    return m.group(1).lower() if m else None
+
+
+def check_anchor(record, resolved_block_hash: str, tip_height: int,
+                 max_anchor_age_blocks: int = DEFAULT_MAX_ANCHOR_AGE_BLOCKS) -> str:
+    """Check a canary's chain anchor against facts the CALLER resolved (this library performs NO
+    network I/O). This is the "a verifier with chain access SHOULD resolve `block_hash`" check the
+    module docstring names: without it, `block_hash` is a commitment the signer made, not a verified
+    fact.
+
+    WARNING: `resolved_block_hash` MUST be looked up INDEPENDENTLY from the chain (your own node, an
+    SPV proof, a block explorer). NEVER pass the record's own ``record["block_hash"]`` here -- it would
+    match itself, ANCHORED would be returned for ANY value the signer wrote, and the anti-backdate
+    check becomes theatre. This function cannot tell an independently-resolved hash from the record's
+    own (a genuine anchor's resolved hash DOES equal the record's), so it is the caller's duty; the
+    callers in this repo (verify_canary, the CLI `canary` command) take it as a separate input and
+    never derive it from the record.
+
+    `tip_height` is the caller's current chain-tip height. Returns:
+
+      ANCHORED         `block_hash` matches the resolved hash AND the anchor block is within
+                       [tip - max_anchor_age_blocks, tip] -- real and recent.
+      ANCHOR_MISMATCH  `block_hash` is NOT the canonical hash at its height: the signed anti-backdate
+                       anchor is false, so the canary's timing cannot be trusted.
+      ANCHOR_STALE     the anchor block is older than the window: a pre-signed / postdated canary, or
+                       one replayed from beyond the window.
+      ANCHOR_FUTURE    the anchor height is above the caller's tip: it cannot be confirmed yet.
+
+    WHAT THIS DOES AND DOES NOT CATCH: the anchor proves the record was signed AFTER its named block
+    existed (no backdating) and, against a recent tip, that it is not an out-of-window-old record. It
+    does NOT replace date-freshness (`is_fresh`/`status`) for an IN-window replay -- with the default
+    window ~= max_age_days the two overlap -- and it does NOT catch IN-window RETRACTION (swapping a
+    newer "we got a warrant" canary for a slightly-older still-in-window "all clear" one): that needs
+    the client to track `seq` monotonically, which a stateless primitive cannot do. Its real teeth are
+    against a coerced pre-signed / postdated stack, where date-age and anchor-age diverge.
+
+    Raises MalformedCanaryInput if the record's shape is wrong (the same gate the signature path uses),
+    or the caller's `resolved_block_hash` is not hex / `tip_height` or `max_anchor_age_blocks` is not a
+    non-negative int. A record whose OWN `block_hash` is not hexadecimal cannot match a real block hash
+    -> ANCHOR_MISMATCH, not an error (it is still a well-formed canary; its anchor just cannot be a real
+    block)."""
+    rec, wire = _record_of(record)
+    check_record(rec, wire)
+    resolved = _norm_hex(resolved_block_hash)
+    if resolved is None:
+        raise MalformedCanaryInput("resolved_block_hash must be hexadecimal text")
+    if isinstance(tip_height, bool) or not isinstance(tip_height, int) or tip_height < 0:
+        raise MalformedCanaryInput("tip_height must be a non-negative integer")
+    if (isinstance(max_anchor_age_blocks, bool) or not isinstance(max_anchor_age_blocks, int)
+            or max_anchor_age_blocks < 0):
+        raise MalformedCanaryInput("max_anchor_age_blocks must be a non-negative integer")
+    signed = _norm_hex(rec["block_hash"])
+    if signed is None or signed != resolved:
+        return ANCHOR_MISMATCH
+    height = rec["block_height"]
+    if height > tip_height:
+        return ANCHOR_FUTURE
+    if height < tip_height - max_anchor_age_blocks:
+        return ANCHOR_STALE
+    return ANCHORED

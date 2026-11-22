@@ -1,0 +1,56 @@
+# CI — run the guards and test suites that gate this tree, on every push and pull request, instead of
+# only by hand (audit: "the guards exist but nothing runs them in CI").
+#
+# This workflow runs on the published repository, so it invokes only checks whose inputs are
+# published. Guards that depend on withheld inputs — the render-parity check (needs the private signer
+# material), the private-reference check (reads the withheld share manifest), and the cross-repo
+# engine-drift test (compares against sibling repositories that are not checked out here) — stay in
+# the local pre-publish gate, because invoking them here would point at material the published
+# checkout does not contain.
+#
+# Everything below is a pure check over the repo's own published bytes: no secrets, a read-only token,
+# no deploy, and no network beyond the Python/Node toolchains and the one declared dependency
+# (bitcoinx, for the canary signatures). Actions are pinned to major tags; they can be pinned to full
+# commit SHAs for stricter supply-chain hygiene.
+name: ci
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  python:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install dependencies
+        run: pip install -r python/requirements.txt pytest
+      - name: Standard consistency (SPEC <-> revisions)
+        run: python3 tools/check_standard_consistency.py
+      - name: Licence map
+        run: python3 tools/check_licence_map.py
+      - name: No silent exception handlers
+        run: python3 tools/check_no_silent_handlers.py
+      - name: Python tests
+        run: python3 -m pytest python/tests/ -q
+        env:
+          PYTHONPATH: python
+
+  javascript:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: JS port tests
+        run: npm test
+        working-directory: js
+      - name: Web verifier gate
+        run: node js/tools/check_web_verifier.mjs web/inkan-verify.html

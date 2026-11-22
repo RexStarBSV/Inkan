@@ -110,9 +110,21 @@ def op_fingerprint(args: dict) -> dict:
     got = fingerprint_hex(payload, adopter, version)
     out = {"fingerprint": got, "adopter": adopter, "version": version, "bytes": len(payload)}
     expect = args.get("expect")
-    if expect:
+    if expect is not None:
+        # A comparison was REQUESTED (even `expect: ""`): this is a verify, so it must yield a pass/fail
+        # and never fall through to a silent compute (audit F MED-2 review MED-2). Routed through the
+        # hardened verify_fingerprint so the contract (strip/lower, ok, verdict) matches the library and
+        # an empty/garbage expected value FAILS closed instead of returning no verdict at all. `if expect:`
+        # here used to drop an empty string to the compute path, so an agent that passed an unset variable
+        # got a non-error back.
+        res = inkan_verify.verify_fingerprint(payload, adopter, expect, version)
         out["expected"] = expect
-        out["ok"] = got == expect.lower().replace("0x", "")
+        out["ok"] = res.ok
+        out["verdict"] = res.detail.get("verdict")
+    else:
+        # No comparison requested: a COMPUTE, like inkan_generate -- return the value with no `ok` (not an
+        # error), but label the verdict so an agent cannot read "computed" as "verified".
+        out["verdict"] = "COMPUTED"
     return out
 
 

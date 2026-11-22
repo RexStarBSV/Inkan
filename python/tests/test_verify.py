@@ -927,6 +927,157 @@ class TestTypedTextIsText(unittest.TestCase):
                          fingerprint_hex(typed.encode("utf-8"), "acme"))
 
 
+class TestNoComparandIsNotAPass(unittest.TestCase):
+    """F MED-2: a verify with nothing to compare against must fail closed, not report GENUINE/MATCH.
+    The fail-open let an agent (or any caller keying on `ok`) read a PASS from the MCP tool while no
+    image/expected value was ever presented."""
+
+    def test_verify_seal_with_no_image_is_indeterminate_not_a_pass(self):
+        r = verify.verify_seal("1BvBMSEYstWetqTFn5Au4m4GFg7xJaNVN2", "address")
+        self.assertFalse(r.ok, "no presented image must NOT verify as a pass")
+        self.assertEqual(r.detail.get("verdict"), "INDETERMINATE")
+        self.assertTrue(r.detail["code"].startswith("ik1"), "the canonical code is still computed")
+
+    def test_verify_fingerprint_with_no_expected_is_computed_not_a_pass(self):
+        r = verify.verify_fingerprint(b"payload", "acme")
+        self.assertFalse(r.ok, "no expected value must NOT verify as a pass")
+        self.assertEqual(r.detail.get("verdict"), "COMPUTED")
+        self.assertTrue(r.detail["fingerprint_hex"], "the fingerprint is still computed")
+
+    def test_genuine_and_mismatch_still_carry_their_verdict(self):
+        png = verify.canonical_seal("Inkan", "wallet:inkan@t1")["png"]
+        g = verify.verify_seal("Inkan", "wallet:inkan@t1", png)
+        self.assertTrue(g.ok)
+        self.assertEqual(g.detail.get("verdict"), "GENUINE")
+        m = verify.verify_seal("Inkan", "wallet:inkan@t2", png)   # genuine image, wrong kind
+        self.assertFalse(m.ok)
+        self.assertEqual(m.detail.get("verdict"), "MISMATCH")
+
+    def test_mcp_tool_does_not_report_ok_true_without_a_seal_path(self):
+        import importlib.util
+        spec = importlib.util.spec_from_file_location("inkan_mcp", _ROOT / "tools" / "inkan_mcp.py")
+        mcp = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(mcp)
+        out = mcp.op_verify_seal({"text": "1BvBMSEYstWetqTFn5Au4m4GFg7xJaNVN2", "kind": "address"})
+        self.assertFalse(out["ok"], "the MCP verify tool must not pass with no image presented")
+        self.assertEqual(out["detail"].get("verdict"), "INDETERMINATE")
+
+    def test_cli_empty_expect_mismatch_is_not_masked_to_exit_0(self):
+        # Review MED-1: `--expect ""` is NOT a compute -- it triggers a REAL comparison (empty != the
+        # digest), a genuine MISMATCH. compute_mode is derived from the VERDICT, so this stays exit 1 /
+        # fail-closed; a truthiness check on args.expect would have wrongly remapped it to exit 0.
+        import io, contextlib, json
+        out = io.StringIO()
+        with contextlib.redirect_stdout(out):
+            rc = verify.main(["fingerprint", "--payload", "hello", "--adopter", "acme", "--expect", "", "--json"])
+        self.assertEqual(rc, 1, out.getvalue())
+        parsed = json.loads(out.getvalue())
+        self.assertFalse(parsed["ok"])
+        self.assertEqual(parsed["detail"]["verdict"], "MISMATCH")
+
+    def test_cli_no_expect_is_compute_exit_0_but_json_is_honest(self):
+        import io, contextlib, json
+        out = io.StringIO()
+        with contextlib.redirect_stdout(out):
+            rc = verify.main(["fingerprint", "--payload", "hello", "--adopter", "acme", "--json"])
+        self.assertEqual(rc, 0, out.getvalue())           # compute mode (no --expect): exit 0, but...
+        parsed = json.loads(out.getvalue())
+        self.assertFalse(parsed["ok"])                    # ...--json stays honest: not a pass
+        self.assertEqual(parsed["detail"]["verdict"], "COMPUTED")
+
+    def test_mcp_fingerprint_fails_closed_on_empty_or_missing_expected(self):
+        import importlib.util
+        spec = importlib.util.spec_from_file_location("inkan_mcp", _ROOT / "tools" / "inkan_mcp.py")
+        mcp = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(mcp)
+        # Review MED-2: an EMPTY expected value is a verify attempt with nothing real to match -> fail
+        # closed (ok False), not a silent compute that returns no verdict.
+        empty = mcp.op_fingerprint({"text": "hello", "adopter": "acme", "expect": ""})
+        self.assertFalse(empty["ok"])
+        self.assertEqual(empty["verdict"], "MISMATCH")
+        # no expected value = a COMPUTE: no `ok` key (not an error) but labelled COMPUTED, never "verified"
+        compute = mcp.op_fingerprint({"text": "hello", "adopter": "acme"})
+        self.assertNotIn("ok", compute)
+        self.assertEqual(compute["verdict"], "COMPUTED")
+        # a correct expected value still verifies true, incl. with surrounding whitespace (strip/lower
+        # now via verify_fingerprint, closing the inline-compare inconsistency)
+        good = compute["fingerprint"]
+        self.assertTrue(mcp.op_fingerprint({"text": "hello", "adopter": "acme", "expect": good})["ok"])
+        self.assertTrue(mcp.op_fingerprint(
+            {"text": "hello", "adopter": "acme", "expect": "  " + good + "\n"})["ok"])
+
+
+class TestCanaryAnchor(unittest.TestCase):
+    """F MED-1: the canary's block_height/block_hash anchor was written but checked by nothing, so an
+    in-window REPLAY of an old canary read OK. check_anchor verifies it against caller-supplied chain
+    facts (this library never fetches), and verify_canary folds it in when the facts are given."""
+
+    @staticmethod
+    def _canary():
+        from inkan_standard import canary
+        return canary
+
+    def _rec(self, height=870000, bh="ab" * 32):
+        return self._canary().build_record("acme", 7, "all clear", height, bh,
+                                           date="2026-06-30T00:00:00Z")
+
+    def test_a_matching_recent_anchor_is_anchored(self):
+        c = self._canary()
+        self.assertEqual(c.check_anchor(self._rec(), "AB" * 32, 870010), c.ANCHORED)  # case-insensitive
+
+    def test_a_false_block_hash_is_a_mismatch(self):
+        c = self._canary()
+        self.assertEqual(c.check_anchor(self._rec(), "cd" * 32, 870010), c.ANCHOR_MISMATCH)
+
+    def test_a_replayed_old_anchor_is_stale(self):
+        c = self._canary()
+        rec = self._rec(height=100000)
+        tip = 100000 + c.DEFAULT_MAX_ANCHOR_AGE_BLOCKS + 1       # tip far past the anchor's window
+        self.assertEqual(c.check_anchor(rec, "ab" * 32, tip), c.ANCHOR_STALE)
+
+    def test_an_anchor_above_the_tip_is_future(self):
+        c = self._canary()
+        self.assertEqual(c.check_anchor(self._rec(), "ab" * 32, 869999), c.ANCHOR_FUTURE)
+
+    def test_bad_caller_facts_fail_loud(self):
+        c = self._canary()
+        with self.assertRaises(c.MalformedCanaryInput):
+            c.check_anchor(self._rec(), "not-hex", 870000)
+        with self.assertRaises(c.MalformedCanaryInput):
+            c.check_anchor(self._rec(), "ab" * 32, -1)
+
+    def test_a_bad_window_fails_loud(self):
+        # A negative window must fail loud, not silently invert the staleness test (review LOW-1).
+        c = self._canary()
+        with self.assertRaises(c.MalformedCanaryInput):
+            c.check_anchor(self._rec(), "ab" * 32, 870000, max_anchor_age_blocks=-1)
+
+    def test_verify_canary_folds_the_anchor_when_facts_are_given(self):
+        import json as _json
+        import datetime as _dt
+        c = self._canary()
+        doc = _json.loads((_VECTORS / "canary-vectors.json").read_text())
+        tv = next(x for x in doc["cases"] if x["name"] == "tv7")        # a pinned OK case
+        rec = _json.loads(tv["record_json"])
+        now = _dt.datetime(2026, 7, 1, 0, 0, 0)                          # the vector's pinned clock
+        bh, h = rec["block_hash"], rec["block_height"]
+        # signature + date are OK (verified via the pure-Python fallback; no bitcoinx needed) AND the
+        # anchor resolves and is recent -> OK/ANCHORED
+        r_ok = verify.verify_canary(tv["record_json"], tv["signature_der_hex"], doc["pubkey_hex"],
+                                    now=now, resolved_block_hash=bh, tip_height=h + 10)
+        self.assertTrue(r_ok.ok, r_ok.summary)
+        self.assertEqual(r_ok.detail["anchor"], c.ANCHORED)
+        # a FALSE anchor makes it NOT ok even though the signature and date are fine (the MED-1 gap)
+        r_bad = verify.verify_canary(tv["record_json"], tv["signature_der_hex"], doc["pubkey_hex"],
+                                     now=now, resolved_block_hash="00" * 32, tip_height=h + 10)
+        self.assertFalse(r_bad.ok)
+        self.assertEqual(r_bad.detail["anchor"], c.ANCHOR_MISMATCH)
+        # with NO chain facts the anchor is reported NOT_CHECKED and the verdict is unchanged (compat)
+        r_none = verify.verify_canary(tv["record_json"], tv["signature_der_hex"], doc["pubkey_hex"], now=now)
+        self.assertTrue(r_none.ok)
+        self.assertEqual(r_none.detail["anchor"], "NOT_CHECKED")
+
+
 class TestReadmeSeals(unittest.TestCase):
     """README.md opens with six example seals. Each image must be exactly the seal of the data and
     kind its row names, and the README must show its short code and full code, so the examples a
@@ -954,7 +1105,10 @@ class TestSuiteIntegrity(unittest.TestCase):
     """
 
     # Every case the loader should find in this module, including the one below.
-    EXPECTED_CASES = 47
+    # 47 -> 54: +7 for TestNoComparandIsNotAPass (F MED-2 fail-closed regression tests, incl. the
+    # review MED-1 CLI exit-code and MED-2 MCP-fingerprint cases).
+    # 54 -> 61: +7 for TestCanaryAnchor (F MED-1 chain anchor / anti-retraction, incl. review LOW-1).
+    EXPECTED_CASES = 61
 
     def test_every_case_declared_in_this_module_is_collected(self):
         collected = unittest.TestLoader().loadTestsFromModule(
